@@ -1,24 +1,24 @@
 import java.time.LocalDateTime;
 
 public class MovieSchedule {
-	private short movieSchedule;
+	private short movieScheduleId;
 	private LocalDateTime showingDateTime;
 	private Movie movie;
 	private boolean isPremiereShow;
 	private SeatLayout seats;
 	
-	public MovieSchedule(short movieSchedule, LocalDateTime showingDateTime, Movie movie, boolean isPremiereShow,
+	public MovieSchedule(short movieScheduleId, LocalDateTime showingDateTime, Movie movie, boolean isPremiereShow,
 			SeatLayout seats) {
 		super();
-		this.movieSchedule = movieSchedule;
+		this.movieScheduleId = movieScheduleId;
 		this.showingDateTime = showingDateTime;
 		this.movie = movie;
 		this.isPremiereShow = isPremiereShow;
 		this.seats = seats;
 	}
 
-	public short getMovieSchedule() {
-		return movieSchedule;
+	public short getMovieScheduleId() {
+		return movieScheduleId;
 	}
 
 	public LocalDateTime getShowingDateTime() {
