@@ -1,17 +1,17 @@
 
 public class Reservation {
-	private short reservationNum;
+	private int reservationNum;
 	private String seatCodes;
 	private MovieSchedule movie;
 	
-	public Reservation(short reservationNum, String seatCodes, MovieSchedule movie) {
+	public Reservation(int reservationNum, String seatCodes, MovieSchedule movie) {
 		super();
 		this.reservationNum = reservationNum;
 		this.seatCodes = seatCodes;
 		this.movie = movie;
 	}
 
-	public short getReservationNum() {
+	public int getReservationNum() {
 		return reservationNum;
 	}
 
