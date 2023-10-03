@@ -8,13 +8,13 @@ public class MovieSchedule {
 	private SeatLayout seats;
 	
 	public MovieSchedule(short movieScheduleId, LocalDateTime showingDateTime, Movie movie, boolean isPremiereShow,
-			SeatLayout seats) {
+			short seats) {
 		super();
 		this.movieScheduleId = movieScheduleId;
 		this.showingDateTime = showingDateTime;
 		this.movie = movie;
 		this.isPremiereShow = isPremiereShow;
-		this.seats = seats;
+		this.seats = new SeatLayout(seats);
 	}
 
 	public short getMovieScheduleId() {
