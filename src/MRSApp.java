@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 public class MRSApp {
 	private ArrayList<MovieSchedule> movies;
@@ -16,34 +17,36 @@ public class MRSApp {
 		reservations = new ArrayList<Reservation>();
 	}
 
-	public void displayMovies() {
-
+	public void displayMovies(String date) {
+		System.out.println("\nMovie Schedule ID\tTime Start\tTitle");
+		for (MovieSchedule item : filterMoviesByDate(date)) {
+			LocalDateTime dateTime = item.getShowingDateTime();
+			System.out.println("[" + item.getMovieScheduleId() + "]\t\t\t" + dateTime.getHour() + ":"
+					+ dateTime.getMinute() + "\t\t" + item.getMovie().getMovieName());
+		}
+		System.out.println();
 	}
 
 	public void readReservationCSV() {
-//		readMovieCSV();
-		ArrayList<String> rsvData = readFromCSV(RESERVATIONS);
-		
+		ArrayList<String> rsvData = readFromCSV("RESERVATIONS");
+
 		String[] reservationParts;
-		short ticketNum;
+		int ticketNum;
 		LocalDateTime dateTime;
 		byte cinema;
 		String seatCodes;
-		float totalPrice;
-		
+
 		for (String item : rsvData) {
 			reservationParts = item.substring(1, item.length() - 1).split("\",\"");
 
-			// mapping columns to Class attributes
-			ticketNum =  Short.parseShort(reservationParts[0]);
+			ticketNum = Integer.parseInt(reservationParts[0]);
 			cinema = Byte.parseByte(reservationParts[2]);
 			dateTime = generateDateTime(reservationParts[1], reservationParts[3]);
 			seatCodes = reservationParts[4];
-			totalPrice = Float.parseFloat(reservationParts[5]);
-			
-			for(MovieSchedule movieSched:movies) {
-				if(dateTime.equals(movieSched.getShowingDateTime())) {
-					if(cinema==movieSched.getMovie().getCinemaNum()) {
+
+			for (MovieSchedule movieSched : movies) {
+				if (dateTime.equals(movieSched.getShowingDateTime())) {
+					if (cinema == movieSched.getMovie().getCinemaNum()) {
 						Reservation res = new Reservation(ticketNum, seatCodes, movieSched);
 						reservations.add(res);
 					}
@@ -54,7 +57,6 @@ public class MRSApp {
 
 	public void readMovieCSV() {
 		ArrayList<String> csvData = readFromCSV(MOVIES);
-		int len = csvData.size();
 		String[] columns;
 
 		// id counters
@@ -70,8 +72,8 @@ public class MRSApp {
 		Movie movieTemp;
 		MovieSchedule MSTemp;
 
-		for (int i = 0; i < len; i++) {
-			columns = csvData.get(i).split(",");
+		for (String item : csvData) {
+			columns = item.substring(1, item.length() - 1).split("\",\"");
 
 			// mapping columns to Class attributes
 			cinemaNum = Byte.parseByte(columns[1]);
@@ -93,7 +95,7 @@ public class MRSApp {
 	private LocalDateTime generateDateTime(String date, String time) {
 
 		// sample value of time in the passed parameter: 12:30
-		String temp = date + time + ":00";
+		String temp = date + " " + time + ":00";
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 		LocalDateTime dateTime = LocalDateTime.parse(temp, formatter);
 
@@ -105,9 +107,9 @@ public class MRSApp {
 		ArrayList<String> csvData = new ArrayList<>();
 
 		if (file.equals(MOVIES))
-			csvFile = "C:/Users/rodrigo.tomaub/Downloads/MovieSchedule.csv";
+			csvFile = "C:/Users/adrian.enriquez/Downloads/MovieSchedule.csv";
 		else if (file.equals(RESERVATIONS))
-			csvFile = "C:/Users/rodrigo.tomaub/Downloads/Reservations.csv";
+			csvFile = "C:/Users/adrian.enriquez/Downloads/Reservations.csv";
 
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(csvFile));
@@ -125,7 +127,55 @@ public class MRSApp {
 		return csvData;
 	}
 
-	public static void main(String args[]) {
+	private void reservationFunction() {
 
+	}
+
+	private ArrayList<MovieSchedule> filterMoviesByDate(String date) {
+		ArrayList<MovieSchedule> arr = new ArrayList<>();
+		for (MovieSchedule item : movies) {
+			LocalDateTime dateTime = item.getShowingDateTime();
+			String temp = dateTime + "";
+			String[] dateTimeStr = temp.split("T");
+// 			System.out.println(dateTimeStr[0]);
+//			if (date.equals(String.valueOf(dateTime.getYear()+"-"+dateTime.getMonthValue()+"-"+dateTime.getDayOfMonth()))) {
+ 			if (date.equals(dateTimeStr[0])) {
+				arr.add(item);
+			}
+		}
+		return arr;
+	}
+
+	public static void main(String args[]) {
+		Scanner scan = new Scanner(System.in);
+		MRSApp app = new MRSApp();
+		app.readMovieCSV();
+		app.readReservationCSV();
+
+		boolean runApp = true;
+
+		do {
+			System.out.print("Main Menu\n[1] Reserve Seat\n[2] Cancel Reservation\n\nPick Option: ");
+			String option = scan.next();
+			switch (option) {
+			case "1":
+				System.out.print("\nEnter Date: ");
+				String date = scan.next();
+				if (app.filterMoviesByDate(date).size()!=0) {
+					app.displayMovies(date);
+				}else {
+					System.out.println("\nInvalid Date Format\n");
+				}
+				break;
+			case "2":
+				System.out.println("Run Cancel Reservation Method\n");
+				break;
+			default:
+				System.out.println("Please Enter valid OPTION\n");
+				break;
+			}
+		} while (runApp);
+
+		scan.close();
 	}
 }
