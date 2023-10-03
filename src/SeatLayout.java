@@ -24,7 +24,7 @@ public class SeatLayout {
 		String key;
 		String value = "";
 		for (int row = 1; row <= 8; row++) {
-			System.out.println("\t|\t");
+			System.out.print("   |   ");
 
 			for (int column = 1; column <= 5; column++) {
 				key = getKey(row) + "" + column;
@@ -32,11 +32,11 @@ public class SeatLayout {
 				try {
 					value = seats.get(key);
 				} catch (Exception e) {
-					System.out.println("Key " + key + "doesn't exists");
+					System.out.print("Key " + key + "doesn't exists");
 				}
 
 				if (value != "")
-					System.out.println("[" + value + "] ");
+					System.out.print("[" + value + "] ");
 			}
 			System.out.println();
 		}
