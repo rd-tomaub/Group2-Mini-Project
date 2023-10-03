@@ -16,8 +16,41 @@ public class MRSApp {
 		
 	}
 
-	public void readMovieFromCSV() {
+	public void readMovieCSV() {
+		ArrayList<String> csvData = readFromCSV(MOVIES);
+		int len = csvData.size();
+		String[] columns;
 
+		// id counters
+		short movieId = 0, movieScheduleId = 0, seatLayoutId = 0;
+
+		// columns from CSV
+		String title;
+		boolean isPremiere;
+		byte cinemaNum;
+		float duration;
+		LocalDateTime dateTime;
+
+		Movie movieTemp;
+		MovieSchedule MSTemp;
+
+		for (int i = 0; i < len; i++) {
+			columns = csvData.get(i).split(",");
+			
+			// mapping columns to Class attributes
+			cinemaNum = Byte.parseByte(columns[1]);
+			// columns[0] is date, columns[2] is time
+			dateTime = generateDateTime(columns[0], columns[2]);
+			isPremiere = Boolean.parseBoolean(columns[3]);
+			title = columns[4];
+			duration = Float.parseFloat(columns[5]);
+			
+			// object creation
+			movieTemp = new Movie(++movieId, title, duration, cinemaNum);
+			MSTemp = new MovieSchedule(++movieScheduleId, dateTime, movieTemp, isPremiere, ++seatLayoutId);
+
+			movies.add(MSTemp);
+		}
 	}
 
 //	helper methods
