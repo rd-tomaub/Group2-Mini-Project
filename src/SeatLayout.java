@@ -5,8 +5,8 @@ public class SeatLayout {
 	private short seatLayoutId;
 	private Map<String, String> seats;
 	
-	public SeatLayout() {
-		seatLayoutId = ++(MRSApp.seatLayoutId);
+	public SeatLayout(short seatLayoutId) {
+		this.seatLayoutId = seatLayoutId;
 		
 		seats = new HashMap<String, String>();
 		String key;
