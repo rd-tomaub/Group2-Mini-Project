@@ -17,11 +17,14 @@ public class MRSApp {
 	}
 
 	public void displayMovies() {
-
+		System.out.println("Movie Schedule ID\tTime Start\tTitle");
+		for (MovieSchedule item : movies) {
+			LocalDateTime dateTime = item.getShowingDateTime();
+			System.out.println("["+item.getMovieScheduleId()+"]\t\t\t"+dateTime.getHour()+":"+dateTime.getMinute()+"\t\t"+item.getMovie().getMovieName());
+		}
 	}
 
 	public void readReservationCSV() {
-//		readMovieCSV();
 		ArrayList<String> rsvData = readFromCSV("RESERVATIONS");
 		
 		String[] reservationParts;
@@ -33,8 +36,6 @@ public class MRSApp {
 		for (String item : rsvData) {
 			reservationParts = item.substring(1, item.length() - 1).split("\",\"");
 
-//			System.out.println(reservationParts[4]);
-//			 mapping columns to Class attributes
 			ticketNum =  Integer.parseInt(reservationParts[0]);
 			cinema = Byte.parseByte(reservationParts[2]);
 			dateTime = generateDateTime(reservationParts[1], reservationParts[3]);
@@ -103,9 +104,9 @@ public class MRSApp {
 		ArrayList<String> csvData = new ArrayList<>();
 
 		if (file.equals(MOVIES))
-			csvFile = "C:/Users/rodrigo.tumaob/Downloads/MovieSchedule.csv";
+			csvFile = "C:/Users/adrian.enriquez/Downloads/MovieSchedule.csv";
 		else if (file.equals(RESERVATIONS))
-			csvFile = "C:/Users/rodrigo.tumaob/Downloads/Reservations.csv";
+			csvFile = "C:/Users/adrian.enriquez/Downloads/Reservations.csv";
 
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(csvFile));
@@ -124,11 +125,9 @@ public class MRSApp {
 	}
 
 	public static void main(String args[]) {
-		MRSApp app = new MRSApp();  // This is for test only
+		MRSApp app = new MRSApp();
 		app.readMovieCSV();
 		app.readReservationCSV();
-		for(Reservation item: app.reservations) {
-			System.out.println(item.getSeatCodes());
-		}
+		app.displayMovies();
 	}
 }

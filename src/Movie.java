@@ -1,14 +1,14 @@
 
 public class Movie {
 	private short movieId;
-	private String moviewName;
+	private String movieName;
 	private float duration;
 	private byte cinemaNum;
 	
-	public Movie(short movieId, String moviewName, float duration, byte cinemaNum) {
+	public Movie(short movieId, String movieName, float duration, byte cinemaNum) {
 		super();
 		this.movieId = movieId;
-		this.moviewName = moviewName;
+		this.movieName = movieName;
 		this.duration = duration;
 		this.cinemaNum = cinemaNum;
 	}
@@ -17,8 +17,8 @@ public class Movie {
 		return movieId;
 	}
 
-	public String getMoviewName() {
-		return moviewName;
+	public String getMovieName() {
+		return movieName;
 	}
 
 	public float getDuration() {
