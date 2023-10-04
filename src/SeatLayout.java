@@ -59,9 +59,9 @@ public class SeatLayout {
 		}
 	}
 
-	private boolean isValidReservation(String seatCodes, int numOfSenior) {
+	private boolean isValidReservation(String seatCodes, byte numOfSenior) {
 		String[] seatPos = seatCodes.split(",");
-		int validCounter;
+		byte validCounter;
 		int length = seatCodes.length();
 
 			for (validCounter = 0; validCounter < length; validCounter++) {
