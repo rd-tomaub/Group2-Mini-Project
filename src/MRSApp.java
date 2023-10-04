@@ -8,13 +8,16 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class MRSApp {
 	private ArrayList<MovieSchedule> movies;
 	private ArrayList<Reservation> reservations;
+	
 	static private ArrayList<MovieSchedule> movieListByDate;
 	static private MovieSchedule currentMovieSelected;
+	
 	private final String MOVIES = "MOVIES";
 	private final String RESERVATIONS = "RESERVATIONS";
 	static Scanner scan = new Scanner(System.in);
@@ -228,6 +231,8 @@ public class MRSApp {
 	}
 
 	private void displaySeatLayout(short movieSchedId) {
+		
+		
 		String movieName = currentMovieSelected.getMovie().getMovieName();
 		String dateTime = generateAmPm(currentMovieSelected.getShowingDateTime());
 		String duration = String.valueOf(currentMovieSelected.getMovie().getDuration());
@@ -268,6 +273,7 @@ public class MRSApp {
 							}
 						}
 						if (currentMovieSelected != null) {
+//							currentMovieSelected.getSeats().displaySeatLayout();
 							app.displaySeatLayout(parsedMovieId);
 							isRunMovieSched = false;
 							System.out.println();
@@ -278,9 +284,18 @@ public class MRSApp {
 						System.out.println("\nInvalid Movie Number\n");
 					}
 				}
-				;
+				
 				while (isRunSeatCodes) {
-
+					
+					System.out.println("\nPlease input seats to be reserved for this transaction: ");
+					String seatCodesInput = scan.next();
+					try {
+					System.out.println("\nHow many senior citizens? ");
+					int numCitizen = scan.nextInt();
+					}catch(InputMismatchException e) {
+						System.out.println("\nInvalid input");
+					}
+//					if()
 				}
 				break;
 			case "2":
