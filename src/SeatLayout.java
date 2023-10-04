@@ -58,5 +58,26 @@ public class SeatLayout {
 			return false;
 		}
 	}
-	
+
+	private boolean isValidReservation(String seatCodes, int numOfSenior) {
+		String[] seatPos = seatCodes.split(",");
+		int validCounter;
+		int length = seatCodes.length();
+
+			for (validCounter = 0; validCounter < length; validCounter++) {
+				if (!seats.get(seatPos[validCounter]).equals("**"))
+					validCounter++;
+				else
+					return false;
+			}
+			
+			if(validCounter==length) {
+				if(numOfSenior<=validCounter) {
+					return true;
+				}
+			}
+
+		return false;
+	}
+
 }
