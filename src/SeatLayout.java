@@ -47,25 +47,14 @@ public class SeatLayout {
 		return alpha[index];
 	}
 
-	public boolean isReservedSeat(String position) {
-		String seatStatus = seats.get(position);
-
-		if (seatStatus != null && seatStatus.equals("**")) {
-			System.out.println("Seat " + position + " is reserved.");
-			return true;
-		} else {
-			System.out.println("Seat " + position + " is available.");
-			return false;
-		}
-	}
-
-	private boolean isValidReservation(String seatCodes, byte numOfSenior) {
-		String[] seatPos = seatCodes.split(",");
+	public boolean isValidReservation(String seatCodes, byte numOfSenior) {
+		// assumes that more than one seat code is received.
+		String[] seatCode = seatCodes.split(",");
 		byte validCounter;
-		int length = seatCodes.length();
+		byte length = (byte)seatCodes.length();
 
-			for (validCounter = 0; validCounter < length; validCounter++) {
-				if (!seats.get(seatPos[validCounter]).equals("**"))
+			for (validCounter = 0; validCounter < length; ) {
+				if (!seats.get(seatCode[validCounter]).equals("**"))
 					validCounter++;
 				else
 					return false;
@@ -73,11 +62,37 @@ public class SeatLayout {
 			
 			if(validCounter==length) {
 				if(numOfSenior<=validCounter) {
-					return true;
+					return true; 
 				}
 			}
 
 		return false;
+	}
+
+	public boolean isValidCancellation(String seatCodes) {
+		// assumes that more than one seat code is received.
+		String[] seatCode = seatCodes.split(",");
+		byte validCounter;
+		byte length = (byte) seatCodes.length();
+
+			for (validCounter = 0; validCounter < length; ) {
+				if (seats.get(seatCode[validCounter]).equals("**"))
+					validCounter++;
+				else
+					return false;
+			}
+			if(validCounter == length)
+				return true;
+
+		return false;
+	}
+
+	public void reserveSeat(String seatCode){
+		seats.put(seatCode, "**");
+	}
+
+	public void cancelSeat(String seatCode){
+		seats.put(seatCode, seatCode);
 	}
 
 }
