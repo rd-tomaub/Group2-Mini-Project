@@ -72,17 +72,19 @@ public class SeatLayout {
 	public boolean isValidCancellation(String seatCodes) {
 		// assumes that more than one seat code is received.
 		String[] seatCode = seatCodes.split(",");
-		byte validCounter;
+		byte validCounter = 0;
 		byte length = (byte) seatCodes.length();
-
-		for (validCounter = 0; validCounter < length;) {
+//
+//		for (validCounter = 0; validCounter < length;) {
+//			if (seats.get(seatCode[validCounter]).equals("**"))
+//				validCounter++;
+//			else
+//				return false;
+//		}
+		for(String items: seatCode) {
 			if (seats.get(seatCode[validCounter]).equals("**"))
-				validCounter++;
-			else
-				return false;
+				return true;
 		}
-		if (validCounter == length)
-			return true;
 
 		return false;
 	}
