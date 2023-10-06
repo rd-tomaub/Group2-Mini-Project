@@ -3,12 +3,14 @@ public class Reservation {
 	private int reservationNum;
 	private String seatCodes;
 	private MovieSchedule movie;
+	private float totalPrice;
 	
-	public Reservation(int reservationNum, String seatCodes, MovieSchedule movie) {
+	public Reservation(int reservationNum, String seatCodes, MovieSchedule movie, float totalPrice) {
 		super();
 		this.reservationNum = reservationNum;
 		this.seatCodes = seatCodes;
 		this.movie = movie;
+		this.totalPrice = totalPrice;
 	}
 
 	public int getReservationNum() {
@@ -21,6 +23,9 @@ public class Reservation {
 
 	public MovieSchedule getMovie() {
 		return movie;
+	}
+	public float getTotalPrice(){
+		return totalPrice;
 	}
 	
 }

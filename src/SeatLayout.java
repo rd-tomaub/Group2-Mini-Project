@@ -51,20 +51,20 @@ public class SeatLayout {
 		// assumes that more than one seat code is received.
 		String[] seatCode = seatCodes.split(",");
 		byte validCounter;
-		byte length = (byte)seatCodes.length();
+		byte length = (byte) seatCodes.length();
 
-			for (validCounter = 0; validCounter < length; ) {
-				if (!seats.get(seatCode[validCounter]).equals("**"))
-					validCounter++;
-				else
-					return false;
+		for (validCounter = 0; validCounter < length;) {
+			if (!seats.get(seatCode[validCounter]).equals("**"))
+				validCounter++;
+			else
+				return false;
+		}
+
+		if (validCounter == length) {
+			if (numOfSenior <= validCounter) {
+				return true;
 			}
-			
-			if(validCounter==length) {
-				if(numOfSenior<=validCounter) {
-					return true; 
-				}
-			}
+		}
 
 		return false;
 	}
@@ -75,23 +75,23 @@ public class SeatLayout {
 		byte validCounter;
 		byte length = (byte) seatCodes.length();
 
-			for (validCounter = 0; validCounter < length; ) {
-				if (seats.get(seatCode[validCounter]).equals("**"))
-					validCounter++;
-				else
-					return false;
-			}
-			if(validCounter == length)
-				return true;
+		for (validCounter = 0; validCounter < length;) {
+			if (seats.get(seatCode[validCounter]).equals("**"))
+				validCounter++;
+			else
+				return false;
+		}
+		if (validCounter == length)
+			return true;
 
 		return false;
 	}
 
-	public void reserveSeat(String seatCode){
+	public void reserveSeat(String seatCode) {
 		seats.put(seatCode, "**");
 	}
 
-	public void cancelSeat(String seatCode){
+	public void cancelSeat(String seatCode) {
 		seats.put(seatCode, seatCode);
 	}
 
