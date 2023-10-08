@@ -61,6 +61,7 @@ public class SeatLayout {
 	public boolean isValidReservation(String seatCodes, byte numOfSenior) {
 		// assumes that more than one seat code is received.
 		String[] temp = seatCodes.split(",");
+		int i=0, j;
 		byte validCounter=0;
 
 		for(String seatCode : temp){
@@ -69,11 +70,11 @@ public class SeatLayout {
 			else
 				return false;
 			
-			for(String seatCode2 : temp) {
-				if(seatCode2==seatCode) {
+			for(j=i+1; j<temp.length; j++){
+				if(seatCode.equals(temp[j]))
 					return false;
-				}
 			}
+			i++;
 		}
 
 		if (validCounter == (byte)temp.length) {
@@ -90,6 +91,7 @@ public class SeatLayout {
 		byte validCounter = 0;
 		
 		for(String seatCode: temp) {
+			
 			if (validSeatFormat(seatCode) && seats.get(seatCode).equals("**"))
 				validCounter++;
 			else 
