@@ -359,17 +359,23 @@ public class MRSApp {
 				invalidInput = true;
 
 				while (invalidInput) {
-					System.out.print("Enter [ESC] to cancel transaction. \nEnter movie schedule id: ");
+					System.out.print("Enter [ESC] to cancel transaction.\nEnter movie schedule id: ");
 					String movieId = scan.next();
 
-					try {
-						parsedMovieId = Short.parseShort(movieId);
-						selectedMovieSched = app.movieSchedules.get(parsedMovieId - 1);
-						app.displaySeatLayout(selectedMovieSched);	
-						invalidInput = false;
-					} catch (Exception e) {
-						System.out.println("\nInvalid movie number\n");
+					if (movieId.equalsIgnoreCase("ESC")) {
 						response = "-1";
+						invalidInput = false;
+					} else {
+						try {
+							parsedMovieId = Short.parseShort(movieId);
+							selectedMovieSched = app.movieSchedules.get(parsedMovieId - 1);
+							app.displaySeatLayout(selectedMovieSched);
+							response = "1";
+							invalidInput = false;
+						} catch (Exception e) {
+							System.out.println("\nInvalid movie number\n");
+							response = "-1";
+						}
 					}
 				}
 
