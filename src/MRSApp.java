@@ -15,8 +15,8 @@ public class MRSApp {
 	
 	private final String MOVIES = "MOVIES";
 	private final String RESERVATIONS = "RESERVATIONS";
-	private final String MOVIESCHED_CSV_PATH ="C:/Users/Lenovo/Downloads/MovieSchedule.csv";
-	private final String RESERVATION_CSV_PATH ="C:/Users/Lenovo/Downloads/Reservations.csv";
+	private final String MOVIESCHED_CSV_PATH ="C:/Users/Rd/Downloads/MovieSchedule.csv";
+	private final String RESERVATION_CSV_PATH ="C:/Users/Rd/Downloads/Reservations.csv";
 	
 	static Scanner scan = new Scanner(System.in);
 
@@ -26,71 +26,61 @@ public class MRSApp {
 	}
 
 	public boolean displayMovieSchedules() {
-		ArrayList<MovieSchedule> movieListByDate = new ArrayList<>();
 		// Initialize date format
 		String expectedFormat = "yyyy-MM-dd";
 		SimpleDateFormat expectedDateFormat = new SimpleDateFormat(expectedFormat);
-
-		//LocalDateTime currentDate = getCurrentDate();
-
 		LocalDateTime currentDate = generateDateTime("2021-06-01", "00:00");
 		boolean isDateFormatValid = true;
 
 		while (isDateFormatValid) {
 			System.out.print("\nEnter [ESC] to cancel transaction. \nEnter Date [yyyy-mm-dd]: ");
-			// Store input date to date variable
 			String date = scan.next();
+			Date parsedDate = null;
+			LocalDateTime inputDate = null;
 			// Back to main menu if user Enter ESC
 			if (date.equalsIgnoreCase("esc"))
 				return false;
+			
 			try {
-				Date parsedDate = expectedDateFormat.parse(date);
-				String formattedDate = expectedDateFormat.format(parsedDate);
+				parsedDate = expectedDateFormat.parse(date);
 				// Convert inputed date to LocalDateTime object
-				LocalDateTime inputDate = generateDateTime(date, "10:00");
+				inputDate = generateDateTime(date, "00:00");
+			} catch (Exception e) {}
 
-				// Check if user input matched format date
-				if (date.equals(formattedDate)) {
-					movieListByDate = filterMoviesByDate(date);
-
-					if (movieListByDate.size() == 0)
-						System.out.println("\nNo Movies Available on this day");
-					
-					if (inputDate.isAfter(currentDate)) {
-						// Display movie schedules
-							System.out.println("\nMovie Schedule ID\tTime Start\tCinema\tTitle");
-							for (MovieSchedule item : movieListByDate) {
-								System.out.println("[" + item.getMovieScheduleId() + "]\t\t\t"
-										+ generateAmPm(item.getShowingDateTime()) + "\t" + item.getMovie().getCinemaNum() + "\t" + item.getMovie().getMovieName());
-						}
-							
-						isDateFormatValid = false;
-					} else
-						System.out.println("\nCannot reserve seats on past dates\n");
-					
-					
-				}
-
-			} catch (Exception e) {
-				System.out.println("Invalid Date Format");
+			String formattedDate = expectedDateFormat.format(parsedDate);
+	
+			// Check if user input matched format date
+			if(!date.equals(formattedDate) || parsedDate == null || inputDate == null){
+				System.out.println("\nInvalid Date Format.");
+				continue;
 			}
+			// check for invalid dates. E.g. February 30
+			if(!isValidDateTime(inputDate)){
+				System.out.println("\nInput date doesn't exist in calendar.");
+				continue;	
+			}
+
+			ArrayList<MovieSchedule> movieListByDate = filterMoviesByDate(date);
+
+			if (inputDate.isAfter(currentDate)) {
+				// Display movie schedules
+				if (movieListByDate.size() == 0)
+					System.out.println("\nNo Movies Available on this day.");
+				else{
+					System.out.println("\nMovie Schedule ID\tTime Start\tCinema\tTitle");
+					for (MovieSchedule item : movieListByDate) {
+						System.out.println("[" + item.getMovieScheduleId() + "]\t\t\t"
+								+ generateAmPm(item.getShowingDateTime()) + "\t" + item.getMovie().getCinemaNum() + "\t" + item.getMovie().getMovieName());
+					}	
+				}	
+				isDateFormatValid = false;
+			} 
+			else 
+				System.out.println("\nCannot reserve seats on past dates.");
+		
 		}
 		System.out.println();
 		return true;
-	}
-
-	private void displaySeatLayout(MovieSchedule movieSched) {
-
-		// MovieSchedule selectedMovieSched = movies.get(movieSchedId-1);
-
-		String movieName = movieSched.getMovie().getMovieName();
-		String dateTime = generateAmPm(movieSched.getShowingDateTime());
-		String duration = String.valueOf(movieSched.getMovie().getDuration());
-
-		System.out.println("\nSeat Layout for\n" + movieName + " @ " + dateTime + "\n["
-				+ movieSched.getMovieScheduleId() + "] " + movieName + ", " + dateTime + ", " + duration);
-
-		movieSched.getSeats().displaySeatLayout();
 	}
 
 	public void addReservationCSV(MovieSchedule movieSched, String seatCodes, float price) {
@@ -99,25 +89,16 @@ public class MRSApp {
 
 		Reservation reservationObj = new Reservation(reservationNum, seatCodes, movieSched, price);
 		reservations.add(reservationObj);
-		// String dateTime = movieSched.getShowingDateTime() + "";
-		// String[] date = dateTime.split("T");
-		// String csvFilePath = RESERVATION_CSV_PATH;
 
 		// write to CSV
 		try {
 			FileWriter fileWriter = new FileWriter(RESERVATION_CSV_PATH, true);
-			// Convert the object fields to an array of strings
-			// String data = reservationNum + "," + date[0] + "," + movieSched.getMovie().getCinemaNum() + "," + date[1]
-					// + "," + "\"" + seatCodes + "\"" + "," + price + "";
-
 			// Append the line to the CSV file
 			fileWriter.append(System.lineSeparator()); // Use system-specific line separator
 			fileWriter.append(reservationObj.toString());
 
 			fileWriter.close();
-		} catch (Exception e) {
-
-		}
+		} catch (Exception e) {}
 
 		// updating the seat layout
 		String[] seatCode = seatCodes.split(",");
@@ -127,7 +108,6 @@ public class MRSApp {
 
 		movieSched.getSeats().displaySeatLayout();
 		System.out.println("\nReservation ID: " + reservationNum);
-		
 	}
 
 	public void readReservationCSV() {
@@ -195,17 +175,12 @@ public class MRSApp {
 			}
 			
 			fileWriter.close();
-		} catch (Exception e) {
-
-		}
-
-		
+		} catch (Exception e) {}
 	}
 
 	public void readMovieScheduleCSV() {
 		ArrayList<String> csvData = readFromCSV(MOVIES);
 		String[] columns;
-
 		// id counters
 		short movieId = 0, movieScheduleId = 0, seatLayoutId = 0;
 
@@ -219,12 +194,12 @@ public class MRSApp {
 		Movie movieTemp;
 		MovieSchedule MSTemp;
 
-		for (String item : csvData) {
-			columns = item.substring(1, item.length() - 1).split("\",\"");
-			title = columns[4];
-			dateTime = generateDateTime(columns[0], columns[2]);
-				
+		for (String item : csvData) {				
 			try{
+				columns = item.substring(1, item.length() - 1).split("\",\"");
+				title = columns[4];
+				dateTime = generateDateTime(columns[0], columns[2]);
+
 				// mapping columns to Class attributes
 				cinemaNum = Byte.parseByte(columns[1]);
 				// columns[0] is date, columns[2] is time
@@ -237,17 +212,46 @@ public class MRSApp {
 				MSTemp = new MovieSchedule(++movieScheduleId, dateTime, movieTemp, isPremiere, ++seatLayoutId);
 
 				movieSchedules.add(MSTemp);
-			}catch(Exception e){
-
-			}
+			}catch(Exception e){}
 		}
 	}
 
 //	helper methods
+	private boolean isValidDateTime(LocalDateTime dateTime){
+		String[] invalidDateTimes = {
+			"FEBRUARY 30", "FEBRUARY 31",
+			"APRIL 31", 
+			"JUNE 31",
+			"SEPTEMBER 31",
+			"NOVEMBER 31"
+		};
+
+		for(String invDateTime : invalidDateTimes){
+			String temp = dateTime.getMonth() + " " + dateTime.getDayOfMonth();
+			if(invDateTime.equals(temp))
+				return false;
+		}
+
+		return true;
+	}
+
+	private void displaySeatLayout(MovieSchedule movieSched) {
+		String movieName = movieSched.getMovie().getMovieName();
+		String dateTime = generateAmPm(movieSched.getShowingDateTime());
+		String duration = String.valueOf(movieSched.getMovie().getDuration());
+
+		System.out.println("\nSeat Layout for\n" + movieName + " @ " + dateTime + "\n["
+				+ movieSched.getMovieScheduleId() + "] " + movieName + ", " + dateTime + ", " + duration);
+
+		movieSched.getSeats().displaySeatLayout();
+	}
+
+
 	private LocalDateTime generateDateTime(String date, String time) {
 		String temp = date + " " + time + ":00";
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 		LocalDateTime dateTime = LocalDateTime.parse(temp, formatter);
+
 		return dateTime;
 	}
 
@@ -285,6 +289,7 @@ public class MRSApp {
 				arr.add(item);
 			}
 		}
+
 		return arr;
 	}
 
@@ -316,13 +321,10 @@ public class MRSApp {
 
 	private float calculateTotalPrice(byte numOfWatchers, byte numOfSenior, boolean isPremiere) {
 		float price = (isPremiere ? 500 : 350);
-		
-		if(isPremiere) {
+		if(isPremiere)
 			return (price * numOfWatchers);
-		} else {
-			float totalPrice = (price * numOfWatchers) - (float) (price * .20 * numOfSenior);
-			return totalPrice;
-		}
+		 
+		return (price * numOfWatchers) - (float) (price * .20 * numOfSenior);
 	}
 
 	private Reservation getReservationTicketNumber(int ticketNumber) {
@@ -370,7 +372,8 @@ public class MRSApp {
 					if (movieId.equalsIgnoreCase("ESC")) {
 						response = "-1";
 						invalidInput = false;
-					} else {
+					} 
+					else {
 						try {
 							parsedMovieId = Short.parseShort(movieId);
 							selectedMovieSched = app.movieSchedules.get(parsedMovieId - 1);
@@ -438,10 +441,10 @@ public class MRSApp {
 						} else if (response.equalsIgnoreCase("n") || response.equalsIgnoreCase("esc"))
 							break;
 						else
-							System.out.println("Invalid input.");	
+							System.out.println("\nInvalid input.");	
 
 					}
-					else System.out.println("Invalid input for seat codes or number of seniors." );
+					else System.out.println("\nInvalid input for seat codes or number of seniors." );
 				}
 				System.out.println();
 				break;
