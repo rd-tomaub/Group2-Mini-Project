@@ -11,25 +11,22 @@ import java.util.Scanner;
 // import com.opencsv.CSVWriter;
 
 public class MRSApp {
-	private ArrayList<MovieSchedule> movies;
+	private ArrayList<MovieSchedule> movieSchedules;
 	private ArrayList<Reservation> reservations;
-
-	// static private ArrayList<MovieSchedule> movieListByDate;
-	static private MovieSchedule currentMovieSelected;
-
+	
 	private final String MOVIES = "MOVIES";
 	private final String RESERVATIONS = "RESERVATIONS";
-	private final String MOVIESCHED_CSV_PATH ="C:/Users/Lenovo/Downloads/MovieSchedule.csv";
-	private final String RESERVATION_CSV_PATH ="C:/Users/Lenovo/Downloads/Reservations (1).csv";
+	private final String MOVIESCHED_CSV_PATH ="C:/Users/Rd/Downloads/MovieSchedule.csv";
+	private final String RESERVATION_CSV_PATH ="C:/Users/Rd/Downloads/Reservations.csv";
 	
 	static Scanner scan = new Scanner(System.in);
 
 	public MRSApp() {
-		movies = new ArrayList<MovieSchedule>();
+		movieSchedules = new ArrayList<MovieSchedule>();
 		reservations = new ArrayList<Reservation>();
 	}
 
-	public boolean displayMovies() {
+	public boolean displayMovieSchedules() {
 		ArrayList<MovieSchedule> movieListByDate = new ArrayList<>();
 		// Initialize date format
 		String expectedFormat = "yyyy-MM-dd";
@@ -41,7 +38,7 @@ public class MRSApp {
 		boolean isDateFormatValid = true;
 
 		while (isDateFormatValid) {
-			System.out.println("\nEnter [ESC] to cancel transaction. \nEnter Date [yyyy-mm-dd]: ");
+			System.out.print("\nEnter [ESC] to cancel transaction. \nEnter Date [yyyy-mm-dd]: ");
 			// Store input date to date variable
 			String date = scan.next();
 			// Back to main menu if user Enter ESC
@@ -58,7 +55,7 @@ public class MRSApp {
 					movieListByDate = filterMoviesByDate(date);
 
 					if (movieListByDate.size() == 0)
-						System.out.println("\nNo Movies Available on this day\n");
+						System.out.println("\nNo Movies Available on this day");
 
 					else if (inputDate.isAfter(currentDate)) {
 						// Display movie schedules
@@ -89,7 +86,7 @@ public class MRSApp {
 		String duration = String.valueOf(movieSched.getMovie().getDuration());
 
 		System.out.println("\nSeat Layout for\n" + movieName + " @ " + dateTime + "\n["
-				+ movieSched.getMovieScheduleId() + 1 + "] " + movieName + ", " + dateTime + ", " + duration);
+				+ movieSched.getMovieScheduleId() + "] " + movieName + ", " + dateTime + ", " + duration);
 
 		movieSched.getSeats().displaySeatLayout();
 	}
@@ -100,20 +97,20 @@ public class MRSApp {
 
 		Reservation reservationObj = new Reservation(reservationNum, seatCodes, movieSched, price);
 		reservations.add(reservationObj);
-		String dateTime = movieSched.getShowingDateTime() + "";
-		String[] date = dateTime.split("T");
-		String csvFilePath = RESERVATION_CSV_PATH;
+		// String dateTime = movieSched.getShowingDateTime() + "";
+		// String[] date = dateTime.split("T");
+		// String csvFilePath = RESERVATION_CSV_PATH;
 
 		// write to CSV
 		try {
 			FileWriter fileWriter = new FileWriter(RESERVATION_CSV_PATH, true);
 			// Convert the object fields to an array of strings
-			String data = reservationNum + "," + date[0] + "," + movieSched.getMovie().getCinemaNum() + "," + date[1]
-					+ "," + "\"" + seatCodes + "\"" + "," + price + "";
+			// String data = reservationNum + "," + date[0] + "," + movieSched.getMovie().getCinemaNum() + "," + date[1]
+					// + "," + "\"" + seatCodes + "\"" + "," + price + "";
 
 			// Append the line to the CSV file
 			fileWriter.append(System.lineSeparator()); // Use system-specific line separator
-			fileWriter.append(data);
+			fileWriter.append(reservationObj.toString());
 
 			fileWriter.close();
 		} catch (Exception e) {
@@ -122,38 +119,42 @@ public class MRSApp {
 
 		// updating the seat layout
 		String[] seatCode = seatCodes.split(",");
-		int length = seatCode.length;
 
-		for (int i = 0; i < length; i++)
-			movieSched.getSeats().reserveSeat(seatCode[i]);
+		for(String s : seatCode)
+			movieSched.getSeats().reserveSeat(s);
 
 		movieSched.getSeats().displaySeatLayout();
-		System.out.println("Reservation ID: " + reservationNum);
+		System.out.println("\nReservation ID: " + reservationNum);
 	}
 
 	public void readReservationCSV() {
-		ArrayList<String> rsvData = readFromCSV("RESERVATIONS");
+		ArrayList<String> rsvData = readFromCSV(RESERVATIONS);
 
-		String[] reservationParts;
-		int ticketNum;
-		LocalDateTime dateTime;
-		byte cinema;
-		String seatCodes;
-
+		String[] columns;
+		LocalDateTime dateTime=null;
+		String seatCodes="";
+		int ticketNum=-1;
+		byte cinema=-1;
+		float price = -1f;
 		for (String item : rsvData) {
-			reservationParts = item.substring(1, item.length() - 1).split("\",\"");
-
-			ticketNum = Integer.parseInt(reservationParts[0]);
-			cinema = Byte.parseByte(reservationParts[2]);
-			dateTime = generateDateTime(reservationParts[1], reservationParts[3]);
-			seatCodes = reservationParts[4];
-			float price = Float.parseFloat(reservationParts[5]);
-
-			for (MovieSchedule movieSched : movies) {
+			columns = item.substring(1, item.length() - 1).split("\",\"");
+			try{			
+				ticketNum = Integer.parseInt(columns[0]);
+				cinema = Byte.parseByte(columns[2]);
+				price = Float.parseFloat(columns[5]);
+								// columns[1] is date, columns[3] is time
+				dateTime = generateDateTime(columns[1], columns[3]);
+				seatCodes = columns[4];
+			
+			}catch(Exception e){
+				System.out.println(e.getMessage());
+			}
+			for (MovieSchedule movieSched : movieSchedules) {
 				if (dateTime.equals(movieSched.getShowingDateTime())) {
 					if (cinema == movieSched.getMovie().getCinemaNum()) {
 						Reservation res = new Reservation(ticketNum, seatCodes, movieSched, price);
 						reservations.add(res);
+						break;
 					}
 				}
 			}
@@ -168,41 +169,34 @@ public class MRSApp {
 		}
 	}
 	
-	public void removeReservationCSV(int reservationNum) {
-		Reservation reservationItem = null;
-		for (Reservation item : reservations) {
-			if (reservationNum == (item.getReservationNum()))
-				reservationItem = item;
-			break;
-		}
-
-		String[] seatCodes = reservationItem.getSeatCodes().split(",");
+	public void removeReservationCSV(Reservation reservationObj) {
+		String[] seatCodes = reservationObj.getSeatCodes().split(",");
 
 		for (String item : seatCodes) {
-			System.out.println(item);
-			reservationItem.getMovie().getSeats().cancelSeat(item);
+			reservationObj.getMovie().getSeats().cancelSeat(item);
 		}
-		System.out.println("Is Deleted? " + reservations.remove(reservationItem));
-//		String csvFilePath = RESERVATION_CSV_PATH;
+		System.out.println("Ticket " + reservationObj.getReservationNum() + " is cancelled.");
+		reservations.remove(reservationObj);
+
 		// write to CSV
 		try {
 			FileWriter fileWriter = new FileWriter(RESERVATION_CSV_PATH, false);
 			// Convert the object fields to an array of strings
-			for (Reservation r : reservations) {
+			for (Reservation reservation : reservations) {
 				// Append the line to the CSV file
-				fileWriter.write(r.toString());
+				fileWriter.write(reservation.toString());
 				fileWriter.write(System.lineSeparator()); // Use system-specific line separator
 			}
-
+			
 			fileWriter.close();
 		} catch (Exception e) {
 
 		}
 
-		System.out.println("Success");
+		
 	}
 
-	public void readMovieCSV() {
+	public void readMovieScheduleCSV() {
 		ArrayList<String> csvData = readFromCSV(MOVIES);
 		String[] columns;
 
@@ -211,9 +205,9 @@ public class MRSApp {
 
 		// columns from CSV
 		String title;
-		boolean isPremiere;
-		byte cinemaNum;
-		float duration;
+		boolean isPremiere=false;
+		byte cinemaNum=-1;
+		float duration=-1f;
 		LocalDateTime dateTime;
 
 		Movie movieTemp;
@@ -221,20 +215,25 @@ public class MRSApp {
 
 		for (String item : csvData) {
 			columns = item.substring(1, item.length() - 1).split("\",\"");
-
-			// mapping columns to Class attributes
-			cinemaNum = Byte.parseByte(columns[1]);
-			// columns[0] is date, columns[2] is time
-			dateTime = generateDateTime(columns[0], columns[2]);
-			isPremiere = Boolean.parseBoolean(columns[3]);
 			title = columns[4];
-			duration = Float.parseFloat(columns[5]);
+			dateTime = generateDateTime(columns[0], columns[2]);
+				
+			try{
+				// mapping columns to Class attributes
+				cinemaNum = Byte.parseByte(columns[1]);
+				// columns[0] is date, columns[2] is time
+				isPremiere = Boolean.parseBoolean(columns[3]);
+				duration = Float.parseFloat(columns[5]);
+		
+				// if error happens, the loop would just iterate.
+				// object creation
+				movieTemp = new Movie(++movieId, title, duration, cinemaNum);
+				MSTemp = new MovieSchedule(++movieScheduleId, dateTime, movieTemp, isPremiere, ++seatLayoutId);
 
-			// object creation
-			movieTemp = new Movie(++movieId, title, duration, cinemaNum);
-			MSTemp = new MovieSchedule(++movieScheduleId, dateTime, movieTemp, isPremiere, ++seatLayoutId);
+				movieSchedules.add(MSTemp);
+			}catch(Exception e){
 
-			movies.add(MSTemp);
+			}
 		}
 	}
 
@@ -245,20 +244,6 @@ public class MRSApp {
 		String formattedDate = currentDate.format(formatter);
 
 		return LocalDateTime.parse(formattedDate, formatter);
-	}
-
-	private Date getDatePart(String date) {
-		String expectedFormat = "yyyy-MM-dd";
-		SimpleDateFormat expectedDateFormat = new SimpleDateFormat(expectedFormat);
-
-		Date parsedDate = null;
-		try {
-			expectedDateFormat.parse(date);
-		} catch (Exception e) {
-
-		}
-
-		return parsedDate;
 	}
 
 	private LocalDateTime generateDateTime(String date, String time) {
@@ -294,7 +279,7 @@ public class MRSApp {
 
 	private ArrayList<MovieSchedule> filterMoviesByDate(String date) {
 		ArrayList<MovieSchedule> arr = new ArrayList<>();
-		for (MovieSchedule item : movies) {
+		for (MovieSchedule item : movieSchedules) {
 			LocalDateTime dateTime = item.getShowingDateTime();
 			String temp = dateTime + "";
 			String[] dateTimeStr = temp.split("T");
@@ -327,149 +312,163 @@ public class MRSApp {
 		return newHourFormat;
 	}
 
-	private String availableSeats(MovieSchedule movieSched) {
-		String[] reservedSeat = new String[] { "A1", "A2" };
-		String seatsAvailable = "";
-		for (Reservation item : reservations) {
-			String seats = item.getSeatCodes();
-			if (item.getMovie() == movieSched) {
-				reservedSeat = seats.split(",");
-			}
-		}
-		if (reservedSeat == null) {
-			seatsAvailable = "40";
-		} else {
-			if (reservedSeat.length == 40) {
-				seatsAvailable = "Full";
-			} else {
-				seatsAvailable = String.valueOf(40 - reservedSeat.length);
-			}
-		}
-		for (String items : reservedSeat) {
-			System.out.println(items);
-		}
-		return seatsAvailable;
-	}
-
 	private float calculateTotalPrice(byte numOfWatchers, byte numOfSenior, boolean isPremiere) {
 		float price = (isPremiere ? 500 : 350);
-		float totalPrice = (price * numOfWatchers) - (float) (price * .20 * numOfSenior);
-
-		return totalPrice;
+		
+		if(isPremiere)
+			return (price * numOfWatchers);
+		else
+			return (price * numOfWatchers) - (float) (price * .20 * numOfSenior);
 	}
 
 	private Reservation getReservationTicketNumber(int ticketNumber) {
 		Reservation reservationItem = null;
+
 		for (Reservation item : reservations) {
 			if (ticketNumber == (item.getReservationNum())) {
 				reservationItem = item;
 				break;
-			} else {
-				System.out.println("Reservation number not found2");
-				System.out.println(ticketNumber);
-				
-				for(Reservation r : reservations)
-					System.out.println(r.getReservationNum());
-				break;
-			}
+			} 
 		}
 
 		return reservationItem;
 	}
-
-
+	
 	public static void main(String args[]) {
 		MRSApp app = new MRSApp();
-		app.readMovieCSV();
+		app.readMovieScheduleCSV();
 		app.readReservationCSV();
 		MovieSchedule selectedMovieSched = null;
+		Reservation reservationObj = null;
+		String seatCodesInput="";
+		boolean invalidInput;
 
 		boolean runApp = true;
 
 		do {
 			System.out.print("Main Menu\n[1] Reserve Seat\n[2] Cancel Reservation\n\nPick Option: ");
 			String response = scan.next();
+			
 			switch (response) {
+
 			case "1":
-				if (!app.displayMovies())
+				if (!app.displayMovieSchedules())
 					break;
 
 				// Initialize movieId
 				short parsedMovieId = -1;
-				boolean invalidInput = true, isRunSeatCodes = true;
+				invalidInput = true;
+
 				while (invalidInput) {
-					System.out.print("Enter [ESC] to cancel transaction. \nEnter Movie Schedule ID: ");
+					System.out.print("Enter [ESC] to cancel transaction. \nEnter movie schedule id: ");
 					String movieId = scan.next();
+
 					try {
 						parsedMovieId = Short.parseShort(movieId);
-						selectedMovieSched = app.movies.get(parsedMovieId - 1);
-						app.displaySeatLayout(selectedMovieSched);
+						selectedMovieSched = app.movieSchedules.get(parsedMovieId - 1);
+						app.displaySeatLayout(selectedMovieSched);	
 						invalidInput = false;
 					} catch (Exception e) {
-						System.out.println("\nInvalid Movie Number\n");
+						System.out.println("\nInvalid movie number\n");
+						response = "-1";
 					}
 				}
+
 				invalidInput = true;
 
-				while (invalidInput) {
-					System.out.println("\nPlease input seats to be reserved for this transaction: ");
-					String seatCodesInput = scan.next();
+				while (invalidInput && !(response.equals("-1"))) {
+					System.out.print("\nPlease input seats to be reserved for this transaction: ");
+					seatCodesInput = scan.next().toUpperCase();
+					
+					if(seatCodesInput.equalsIgnoreCase("esc")) 
+						break;
+
 					String[] viewerCount = seatCodesInput.split(",");
+
 					System.out.println("\nHow many senior citizens? ");
-					byte numCitizen = -1;
+					response = scan.next();
+					
+					if(response.equalsIgnoreCase("esc")) 
+						break;
+					
+					byte numOfSenior = 0;
 					try {
-						numCitizen = scan.nextByte();
+						numOfSenior = Byte.parseByte(response);
 					} catch (Exception e) {
-						System.out.println("\nInvalid seat codes.");
+						System.out.println("\nInvalid input for seat codes or number of seniors.");
 					}
 
-					app.addReservationCSV(selectedMovieSched, seatCodesInput, app.calculateTotalPrice(
-							(byte) viewerCount.length, numCitizen, selectedMovieSched.isPremiereShow()));
-					invalidInput = false;
+					if((selectedMovieSched.getSeats().isValidReservation(seatCodesInput, numOfSenior))){
+						System.out.print("\nDo you want to proceed with reservation? [Y/N]: ");
+						response = scan.next();
+
+						if(response.equalsIgnoreCase("y")){
+							app.addReservationCSV(selectedMovieSched, seatCodesInput, app.calculateTotalPrice((byte)viewerCount.length,
+												numOfSenior, selectedMovieSched.isPremiereShow()));
+							invalidInput = false;
+						}
+						else if (response.equalsIgnoreCase("n")|| response.equalsIgnoreCase("esc"))
+							break;
+						else
+							System.out.println("Invalid input.");	
+
+					}
+					else System.out.println("Invalid input for seat codes or number of seniors." );
 				}
+				System.out.println();
 				break;
+
 			case "2":
 
-				System.out.println("Run Cancel Reservation Method\n");
+				System.out.println("\nRun Cancel Reservation Method\n");
 
 				invalidInput = true;
+
 				while (invalidInput) {
 					System.out.print("Enter [ESC] to cancel transaction. \nInput ticket number: ");
 					response = scan.next();
-					if (response.equalsIgnoreCase("ESC")) {
+
+					if (response.equalsIgnoreCase("ESC"))
 						invalidInput = false;
-					} else {
-						int intResponse = 0;
+					else {
+						int ticketNumber = 0;
 
 						try {
-							intResponse = Integer.parseInt(response);
+							ticketNumber = Integer.parseInt(response);
+							reservationObj = app.getReservationTicketNumber(ticketNumber);
 						} catch (Exception e) {
-							System.out.println("\nReservation number not found");
+							System.out.println("\nInvalid input.");
+							response = "-1"; 
+							// if input is invalid, it shouldn't enter the next if statment.
+							// just to prevent printing ticketNumber doesn't exists 
 						}
 
-						Reservation dataReservation = app.getReservationTicketNumber(intResponse);
-						if (dataReservation != null) {
-							app.displaySeatLayout(dataReservation.getMovie());
-							System.out.println("\nDo you want to proceed on the Cancellation?");
-							String inputResponse = scan.next();
-							if (inputResponse.equalsIgnoreCase("y")) {
-								String seatCodes = dataReservation.getSeatCodes();
-								if (dataReservation.getMovie().getSeats().isValidCancellation(seatCodes)) {
-									app.removeReservationCSV(intResponse);
-								} else {
-									System.out.println("Invalid Ticket Cancellation");
-									invalidInput = false;
+						if (reservationObj != null && !(response.equals("-1"))) {
+							app.displaySeatLayout(reservationObj.getMovie());
+							while(invalidInput){
+								System.out.println("\nDo you want to proceed on the cancellation? [Y/N]: ");
+								String inputResponse = scan.next();
+							
+								if (inputResponse.equalsIgnoreCase("y")) {
+									String seatCodes = reservationObj.getSeatCodes();
+									if (reservationObj.getMovie().getSeats().isValidCancellation(seatCodes))
+										app.removeReservationCSV(reservationObj);
+								
+									else 
+										System.out.println("Invalid ticket cancellation");
+									
+									invalidInput = false;	
 								}
+								else System.out.println("Invalid input.");
 							}
 						}
-
+						else	System.out.println("\nTicket number doesn't exists.\n");
 					}
-
 				}
 				System.out.println();
 				break;
 			default:
-				System.out.println("Please input valid OPTION\n");
+				System.out.println("\nPlease input valid response\n");
 				break;
 			}
 		} while (runApp);
