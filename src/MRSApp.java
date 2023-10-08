@@ -15,8 +15,8 @@ public class MRSApp {
 	
 	private final String MOVIES = "MOVIES";
 	private final String RESERVATIONS = "RESERVATIONS";
-	private final String MOVIESCHED_CSV_PATH ="C:/Users/Rd/Downloads/MovieSchedule.csv";
-	private final String RESERVATION_CSV_PATH ="C:/Users/Rd/Downloads/Reservations.csv";
+	private final String MOVIESCHED_CSV_PATH ="C:/Users/Lenovo/Downloads/MovieSchedule.csv";
+	private final String RESERVATION_CSV_PATH ="C:/Users/Lenovo/Downloads/Reservations.csv";
 	
 	static Scanner scan = new Scanner(System.in);
 
@@ -418,8 +418,6 @@ public class MRSApp {
 				break;
 
 			case "2":
-
-				System.out.println("\nRun Cancel Reservation Method\n");
 
 				invalidInput = true;
 
