@@ -31,9 +31,9 @@ public class MRSApp {
 		String expectedFormat = "yyyy-MM-dd";
 		SimpleDateFormat expectedDateFormat = new SimpleDateFormat(expectedFormat);
 
-		// LocalDateTime currentDate = getCurrentDate();
+		//LocalDateTime currentDate = getCurrentDate();
 
-		LocalDateTime currentDate = generateDateTime("2020-12-01", "00:00");
+		LocalDateTime currentDate = generateDateTime("2021-06-01", "00:00");
 		boolean isDateFormatValid = true;
 
 		while (isDateFormatValid) {
@@ -47,7 +47,7 @@ public class MRSApp {
 				Date parsedDate = expectedDateFormat.parse(date);
 				String formattedDate = expectedDateFormat.format(parsedDate);
 				// Convert inputed date to LocalDateTime object
-				LocalDateTime inputDate = generateDateTime(date, "00:00");
+				LocalDateTime inputDate = generateDateTime(date, "10:00");
 
 				// Check if user input matched format date
 				if (date.equals(formattedDate)) {
@@ -55,17 +55,20 @@ public class MRSApp {
 
 					if (movieListByDate.size() == 0)
 						System.out.println("\nNo Movies Available on this day");
-
-					else if (inputDate.isAfter(currentDate)) {
+					
+					if (inputDate.isAfter(currentDate)) {
 						// Display movie schedules
-						System.out.println("\nMovie Schedule ID\tTime Start\tTitle");
-						for (MovieSchedule item : movieListByDate) {
-							System.out.println("[" + item.getMovieScheduleId() + "]\t\t\t"
-									+ generateAmPm(item.getShowingDateTime()) + "\t" + item.getMovie().getMovieName());
+							System.out.println("\nMovie Schedule ID\tTime Start\tCinema\tTitle");
+							for (MovieSchedule item : movieListByDate) {
+								System.out.println("[" + item.getMovieScheduleId() + "]\t\t\t"
+										+ generateAmPm(item.getShowingDateTime()) + "\t" + item.getMovie().getCinemaNum() + "\t" + item.getMovie().getMovieName());
 						}
+							
 						isDateFormatValid = false;
 					} else
 						System.out.println("\nCannot reserve seats on past dates\n");
+					
+					
 				}
 
 			} catch (Exception e) {
@@ -124,30 +127,34 @@ public class MRSApp {
 
 		movieSched.getSeats().displaySeatLayout();
 		System.out.println("\nReservation ID: " + reservationNum);
+		
 	}
 
 	public void readReservationCSV() {
 		ArrayList<String> rsvData = readFromCSV(RESERVATIONS);
-
 		String[] columns;
-		LocalDateTime dateTime=null;
 		String seatCodes="";
+		LocalDateTime dateTime=null;
 		int ticketNum=-1;
 		byte cinema=-1;
 		float price = -1f;
+		boolean isValid;
 		for (String item : rsvData) {
-			columns = item.substring(1, item.length() - 1).split("\",\"");
+			isValid = false;
 			try{			
+				columns = item.substring(1, item.length() - 1).split("\",\"");
 				ticketNum = Integer.parseInt(columns[0]);
 				cinema = Byte.parseByte(columns[2]);
 				price = Float.parseFloat(columns[5]);
 								// columns[1] is date, columns[3] is time
 				dateTime = generateDateTime(columns[1], columns[3]);
 				seatCodes = columns[4];
+				isValid = true;
+			}catch(Exception e){}
 			
-			}catch(Exception e){
-				System.out.println(e.getMessage());
-			}
+			if(!isValid)
+				continue;
+
 			for (MovieSchedule movieSched : movieSchedules) {
 				if (dateTime.equals(movieSched.getShowingDateTime())) {
 					if (cinema == movieSched.getMovie().getCinemaNum()) {
@@ -302,9 +309,9 @@ public class MRSApp {
 			if (hours != 12)
 				hours -= 12;
 			newHourFormat = hours + ":" + minute + " PM";
-		} else
+		} else {
 			newHourFormat = hours + ":" + minute + " AM";
-
+		}
 		if (hours < 10)
 			newHourFormat = "0" + newHourFormat;
 
@@ -314,10 +321,12 @@ public class MRSApp {
 	private float calculateTotalPrice(byte numOfWatchers, byte numOfSenior, boolean isPremiere) {
 		float price = (isPremiere ? 500 : 350);
 		
-		if(isPremiere)
+		if(isPremiere) {
 			return (price * numOfWatchers);
-		else
-			return (price * numOfWatchers) - (float) (price * .20 * numOfSenior);
+		} else {
+			float totalPrice = (price * numOfWatchers) - (float) (price * .20 * numOfSenior);
+			return totalPrice;
+		}
 	}
 
 	private Reservation getReservationTicketNumber(int ticketNumber) {
@@ -406,13 +415,28 @@ public class MRSApp {
 					if((selectedMovieSched.getSeats().isValidReservation(seatCodesInput, numOfSenior))){
 						System.out.print("\nDo you want to proceed with reservation? [Y/N]: ");
 						response = scan.next();
-
-						if(response.equalsIgnoreCase("y")){
-							app.addReservationCSV(selectedMovieSched, seatCodesInput, app.calculateTotalPrice((byte)viewerCount.length,
-												numOfSenior, selectedMovieSched.isPremiereShow()));
+						float totalPrice = app.calculateTotalPrice((byte) viewerCount.length, numOfSenior,
+								selectedMovieSched.isPremiereShow());
+						float price = (selectedMovieSched.isPremiereShow() ? 500 : 350);
+						byte numOfRegular = (byte) (viewerCount.length - numOfSenior);
+						if (response.equalsIgnoreCase("y")) {
+							app.addReservationCSV(selectedMovieSched, seatCodesInput, totalPrice);
+							System.out.println("Ticket Reservation Details: ");
+							if(selectedMovieSched.isPremiereShow()) {
+								System.out.println("\tPremier Movie");
+							}
+							if (numOfSenior == 0) {
+								System.out.println("\tPrice: " + totalPrice);
+							} else {
+								System.out.println("\t20 % Discount for Senior Citizen");
+								System.out.println("\tSenior Citizen\t: Php " + price * .80 *numOfSenior+
+										"\n\t  " + numOfSenior + "\t@  " + price * .80);
+								System.out.println("\tRegular\t\t: Php " + price * numOfRegular+
+										"\n\t  " + numOfRegular + "\t@  " + price);
+							}
+							System.out.println("\tTotal Price\t: Php " + totalPrice);
 							invalidInput = false;
-						}
-						else if (response.equalsIgnoreCase("n")|| response.equalsIgnoreCase("esc"))
+						} else if (response.equalsIgnoreCase("n") || response.equalsIgnoreCase("esc"))
 							break;
 						else
 							System.out.println("Invalid input.");	
@@ -442,7 +466,7 @@ public class MRSApp {
 						} catch (Exception e) {
 							System.out.println("\nInvalid input.");
 							response = "-1"; 
-							// if input is invalid, it shouldn't enter the next if statment.
+							// if input is invalid, it shouldn't enter the next if statement.
 							// just to prevent printing ticketNumber doesn't exists 
 						}
 

@@ -18,7 +18,7 @@ public class SeatLayout {
 				seats.put(key, key);
 			}
 		}
-	}
+	}	
 
 	public void displaySeatLayout() {
 		String key;
@@ -48,7 +48,8 @@ public class SeatLayout {
 	}
 
 	public boolean validSeatFormat(String seatCode){
-		
+		if(seatCode.length() != 2)
+			return false;
 		if(!(seatCode.charAt(0) >= 'A' && seatCode.charAt(0) <= 'H'))
 			return false;
 		if(!(seatCode.charAt(1) >= '1' && seatCode.charAt(1) <= '5'))
@@ -72,7 +73,6 @@ public class SeatLayout {
 		if (validCounter == (byte)temp.length) {
 			if (numOfSenior <= validCounter && numOfSenior >= 0) 
 				return true;
-			
 		}
 
 		return false;
@@ -86,6 +86,8 @@ public class SeatLayout {
 		for(String seatCode: temp) {
 			if (validSeatFormat(seatCode) && seats.get(seatCode).equals("**"))
 				validCounter++;
+			else 
+				break;
 		}
 		if(validCounter == (byte) temp.length)
 			return true;
