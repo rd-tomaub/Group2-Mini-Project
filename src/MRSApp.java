@@ -8,7 +8,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Scanner;
-// import com.opencsv.CSVWriter;
 
 public class MRSApp {
 	private ArrayList<MovieSchedule> movieSchedules;
