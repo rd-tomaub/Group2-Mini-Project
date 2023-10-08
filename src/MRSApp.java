@@ -244,14 +244,6 @@ public class MRSApp {
 	}
 
 //	helper methods
-	private LocalDateTime getCurrentDate() {
-		LocalDateTime currentDate = LocalDateTime.now();
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-		String formattedDate = currentDate.format(formatter);
-
-		return LocalDateTime.parse(formattedDate, formatter);
-	}
-
 	private LocalDateTime generateDateTime(String date, String time) {
 		String temp = date + " " + time + ":00";
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -310,7 +302,11 @@ public class MRSApp {
 				hours -= 12;
 			newHourFormat = hours + ":" + minute + " PM";
 		} else {
-			newHourFormat = hours + ":" + minute + " AM";
+			if(hours<11) {
+				newHourFormat = hours + ":" + minute + " PM";
+			}else {
+				newHourFormat = hours + ":" + minute + " AM";
+			}
 		}
 		if (hours < 10)
 			newHourFormat = "0" + newHourFormat;
@@ -423,16 +419,19 @@ public class MRSApp {
 							app.addReservationCSV(selectedMovieSched, seatCodesInput, totalPrice);
 							System.out.println("Ticket Reservation Details: ");
 							if(selectedMovieSched.isPremiereShow()) {
-								System.out.println("\tPremier Movie");
+								System.out.println("\tPremiere Movie");
 							}
 							if (numOfSenior == 0) {
-								System.out.println("\tPrice: " + totalPrice);
-							} else {
-								System.out.println("\t20 % Discount for Senior Citizen");
-								System.out.println("\tSenior Citizen\t: Php " + price * .80 *numOfSenior+
-										"\n\t  " + numOfSenior + "\t@  " + price * .80);
 								System.out.println("\tRegular\t\t: Php " + price * numOfRegular+
 										"\n\t  " + numOfRegular + "\t@  " + price);
+							} else {
+								System.out.println("\t20 % Discount for Senior Citizen");
+									System.out.println("\tSenior Citizen\t: Php " + price * .80 *numOfSenior+
+											"\n\t  " + numOfSenior + "\t@  " + price * .80);
+								if(numOfRegular!=0) {
+									System.out.println("\tRegular\t\t: Php " + price * numOfRegular+
+											"\n\t  " + numOfRegular + "\t@  " + price);
+								}
 							}
 							System.out.println("\tTotal Price\t: Php " + totalPrice);
 							invalidInput = false;

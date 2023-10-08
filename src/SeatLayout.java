@@ -68,6 +68,12 @@ public class SeatLayout {
 				validCounter++;
 			else
 				return false;
+			
+			for(String seatCode2 : temp) {
+				if(seatCode2==seatCode) {
+					return false;
+				}
+			}
 		}
 
 		if (validCounter == (byte)temp.length) {
