@@ -1,4 +1,4 @@
-import java.io.FileWriter;
+
 
 public class Reservation {
 	private int reservationNum;
@@ -32,9 +32,9 @@ public class Reservation {
 
 	public String toString() {
 		String dateTime = movie.getShowingDateTime() + "";
-		String[] splittedDateTime = dateTime.split(" ");
-		String data = reservationNum + "," + splittedDateTime[0] + "," + movie.getMovie().getCinemaNum() + ","
-				+ splittedDateTime[1] + "," + "\"" + seatCodes + "\"" + "," + totalPrice + "";
+		String[] splittedDateTime = dateTime.split("T");
+		String data = "\"" + reservationNum + "\",\"" + splittedDateTime[0] + "\",\"" + movie.getMovie().getCinemaNum() + "\",\""
+				+ splittedDateTime[1] + "\"," + "\"" + seatCodes + "\"" + ",\"" + totalPrice + "\"";
 
 		return data;
 	}
