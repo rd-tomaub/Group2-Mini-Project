@@ -2,6 +2,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -244,6 +245,7 @@ public class MRSApp {
 					System.out.println("\nNo Movies Available on this day.");
 					continue;
 				} else {
+					int cinemaGroup = 0;
 					Comparator<MovieSchedule> customComparator = Comparator
 							.comparing((MovieSchedule movieSchedule) -> movieSchedule.getMovie().getCinemaNum())
 							.thenComparing(movieSchedule -> movieSchedule.getShowingDateTime());
@@ -253,6 +255,10 @@ public class MRSApp {
 					
 					System.out.println("\nMovie Schedule ID\tTime Start\tCinema\tTitle");
 					for (MovieSchedule item : tempList) {
+						if(item.getMovie().getCinemaNum()!=cinemaGroup) {
+							System.out.println();
+							cinemaGroup = item.getMovie().getCinemaNum();
+						}
 						System.out.println("[" + item.getMovieScheduleId() + "]\t\t\t"
 								+ generateAmPm(item.getShowingDateTime()) + "\t" + item.getMovie().getCinemaNum() + "\t"
 								+ item.getMovie().getMovieName());
@@ -383,13 +389,22 @@ public class MRSApp {
 			try {
 				columns = item.substring(1, item.length() - 1).split("\",\"");
 				title = columns[4];
-				dateTime = generateDateTime(columns[0], columns[2]);
+				dateTime = generateDateTime(columns[0].replace("\"", ""), columns[2]);
 
+				int cinema = Integer.parseInt(columns[1]);
 				// mapping columns to Class attributes
-				cinemaNum = Byte.parseByte(columns[1]);
+				if(cinema>5||cinema<=0) {
+					cinemaNum = Byte.parseByte("X");
+				}else {
+					cinemaNum = Byte.parseByte(columns[1]);
+				}
 				// columns[0] is date, columns[2] is time
-				isPremiere = Boolean.parseBoolean(columns[3]);
-				duration = Float.parseFloat(columns[5]);
+					isPremiere = Boolean.parseBoolean(columns[3]);
+				if(Float.parseFloat(columns[5])<=0){
+					duration = Float.parseFloat("X");
+				}else{
+					duration = Float.parseFloat(columns[5]);
+				}
 
 				// if error happens, the loop would just iterate.
 				// object creation
@@ -399,11 +414,12 @@ public class MRSApp {
 				
 				movieSchedules.add(MSTemp);
 			} catch (Exception e) {
+//				e.printStackTrace();
 			}
 		}
 		
 //		for(MovieSchedule item:movieSchedules) {
-//			System.out.println(item.toString());
+//			System.out.println(item.isPremiereShow());
 //		}
 	}
 
@@ -414,9 +430,17 @@ public class MRSApp {
 		String duration = String.valueOf(movieSched.getMovie().getDuration());
 
 		System.out.println("\nSeat Layout for\n" + movieName + " @ " + dateTime + "\n["
-				+ movieSched.getMovieScheduleId() + "] " + movieName + ", " + dateTime + ", " + duration);
+				+ movieSched.getMovieScheduleId() + "] " + movieName + ", " + dateTime + ", " + durationFormat(Float.parseFloat(duration)));
 
 		movieSched.getSeats().displaySeatLayout();
+	}
+	
+	private String durationFormat(float duration) {
+	
+		int hours = (int) duration; // Extract the whole number part (hours)
+        int minutes = (int) ((duration - hours) * 60); // Convert the decimal part to minutes
+		
+		return hours + " Hrs " + minutes + " Min";
 	}
 
 	private LocalDateTime generateDateTime(String date,  String time) {
@@ -519,15 +543,17 @@ public class MRSApp {
 		System.out.println("\nTicket Reservation Details:\n");
 
 		System.out.println((isPremiere ? "\t\tPremiere Movie" : ""));
-		if (numOfRegular > 0)
+		if (numOfRegular > 0) {
 			System.out.println(
 					"\tRegular\t\t: Php " + price * numOfRegular + "\n\t  " + numOfRegular + "    @  " + price);
+		}
 
-		if (numOfSenior > 0)
+		if (numOfSenior > 0) {
 			System.out.println((isPremiere ? "" : "\n\t20% Discount for Senior Citizen" ));
 			System.out.println(
 					"\tSenior Citizen\t: Php " +  priceSenior
 							+ "\n\t  " + numOfSenior + "    @  " + price * .80);
+		}
 
 		System.out.println("\n\t------------------------------------");
 		System.out.println("\tTotal Price\t: Php " + totalPrice);
