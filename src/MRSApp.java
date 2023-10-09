@@ -91,7 +91,6 @@ public class MRSApp {
 				while (!invalidInput) {
 					System.out.print("\nPlease input seats to be reserved for this transaction: ");
 					seatCodesInput = scan.nextLine().toUpperCase();
-					// scan.nextLine();
 					
 					if (seatCodesInput.equalsIgnoreCase("esc"))
 						break;
@@ -99,7 +98,6 @@ public class MRSApp {
 
 					System.out.print("\nHow many senior citizens? ");
 					response = scan.nextLine();
-					// scan.next();
 
 					if (response.equalsIgnoreCase("esc"))
 						break;
@@ -120,7 +118,6 @@ public class MRSApp {
 						while(!invalidInput){
 							System.out.print("\nDo you want to proceed with reservation? [Y/N]: ");
 							response = scan.nextLine();
-							// scan.next();
 						
 							if (response.equalsIgnoreCase("y")) {							
 								app.addReservationCSV(selectedMovieSched, seatCodesInput, totalPrice);
