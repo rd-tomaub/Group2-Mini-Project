@@ -48,7 +48,7 @@ public class MRSApp {
 
 		do {
 			System.out.print("Main Menu\n[1] Reserve Seat\n[2] Cancel Reservation\n\nPick Option: ");
-			String response = scan.next();
+			String response = scan.nextLine();
 			invalidInput = true;
 			switch (response) {
 
@@ -60,8 +60,7 @@ public class MRSApp {
 
 				while (invalidInput) {
 					System.out.print("Enter [ESC] to cancel transaction.\nEnter movie schedule id: ");
-					response = scan.next();
-
+					response = scan.nextLine();
 					if (response.equalsIgnoreCase("esc"))
 						break;
 
@@ -83,7 +82,7 @@ public class MRSApp {
 							System.out.println("\nLegend: [Xn] = available seat, [**] = reserved seat");
 							invalidInput = false;
 						} catch (Exception e) {
-							System.out.println("\nInvalid movie number.");
+							System.out.println("\nInvalid movie number.\n");
 						}
 					}
 				}
@@ -91,18 +90,21 @@ public class MRSApp {
 				// just enter here if the logic process above is successful
 				while (!invalidInput) {
 					System.out.print("\nPlease input seats to be reserved for this transaction: ");
-					seatCodesInput = scan.next().toUpperCase();
+					seatCodesInput = scan.nextLine().toUpperCase();
+					// scan.nextLine();
+					
 					if (seatCodesInput.equalsIgnoreCase("esc"))
 						break;
 					String[] viewerCount = seatCodesInput.split(",");
 
 					System.out.print("\nHow many senior citizens? ");
-					response = scan.next();
+					response = scan.nextLine();
+					// scan.next();
 
 					if (response.equalsIgnoreCase("esc"))
 						break;
 
-					byte numOfSenior = 0;
+					byte numOfSenior = -1;
 					try {
 						numOfSenior = Byte.parseByte(response);
 					} catch (Exception e) {
@@ -115,17 +117,21 @@ public class MRSApp {
 
 						app.printTicketDetails(seatCodesInput, numOfSenior, selectedMovieSched.isPremiereShow(), totalPrice);
 
-						System.out.print("\nDo you want to proceed with reservation? [Y/N]: ");
-						response = scan.next();
-
-						if (response.equalsIgnoreCase("y")) {							
-							app.addReservationCSV(selectedMovieSched, seatCodesInput, totalPrice);
-							invalidInput = true; // stops the loop
-						} else if (response.equalsIgnoreCase("n") || response.equalsIgnoreCase("esc"))
-							break;
-						else
-							System.out.println("\nInvalid input.");
-
+						while(!invalidInput){
+							System.out.print("\nDo you want to proceed with reservation? [Y/N]: ");
+							response = scan.nextLine();
+							// scan.next();
+						
+							if (response.equalsIgnoreCase("y")) {							
+								app.addReservationCSV(selectedMovieSched, seatCodesInput, totalPrice);
+								invalidInput = true; // stops the loop
+							} else if (response.equalsIgnoreCase("n") || response.equalsIgnoreCase("esc")){
+								invalidInput = true;
+								break;
+							}
+							else
+								System.out.println("\nInvalid input.");
+						}
 					} else
 						System.out.println("\nInvalid input for seat codes or number of seniors.");
 				}
@@ -135,7 +141,7 @@ public class MRSApp {
 			case "2":
 				while (invalidInput) {
 					System.out.print("\nEnter [ESC] to cancel transaction. \nInput ticket number: ");
-					response = scan.next();
+					response = scan.nextLine();
 
 					if (response.equalsIgnoreCase("esc"))
 						break;
@@ -160,13 +166,13 @@ public class MRSApp {
 
 								System.out.println("\nSeats to be cancelled: ");
 								for (String item : seatCodesArray) {
-									System.out.print(item);
+									System.out.print(item.trim());
 									if(seatCodeLength != 1)
 										System.out.print(", ");
 									seatCodeLength--;
 								}
 								System.out.print("\n\nDo you still want to proceed on the cancellation? [Y/N]: ");
-								response= scan.next();
+								response= scan.nextLine();
 							
 								if (response.equalsIgnoreCase("y")) {
 									String seatCodes = reservationObj.getSeatCodes();
@@ -208,14 +214,18 @@ public class MRSApp {
 		DateTimeFormatter validDateFormat = DateTimeFormatter.ofPattern(expectedFormat);
 		Date parsedDate = null;
 		LocalDate checkValidDate = null;
+		String date;
 		boolean isDateFormatValid = true;
 
 		while (isDateFormatValid) {
 			System.out.print("\nEnter [ESC] to cancel transaction. \nEnter Date [yyyy-mm-dd]: ");
-			String date = scan.next();
+			date = scan.nextLine();
 			// Back to main menu if user Enter ESC
-			if (date.equalsIgnoreCase("esc"))
+			if (date.equalsIgnoreCase("esc")){
+				System.out.println();
 				return false;
+			}
+				
 			try {
 				// check for invalid dates. E.g. February 30
 				checkValidDate = LocalDate.parse(date, validDateFormat);
