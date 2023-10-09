@@ -16,8 +16,8 @@ public class MRSApp {
 	
 	private final String MOVIES = "MOVIES";
 	private final String RESERVATIONS = "RESERVATIONS";
-	private final String MOVIESCHED_CSV_PATH ="C:/Users/Rd/Downloads/MovieSchedule.csv";
-	private final String RESERVATION_CSV_PATH ="C:/Users/Rd/Downloads/Reservations.csv";
+	private final String MOVIESCHED_CSV_PATH ="C:/Users/adrian.enriquez/Downloads/MovieSchedule.csv";
+	private final String RESERVATION_CSV_PATH ="C:/Users/adrian.enriquez/Downloads/Reservations.csv";
 	
 	private static LocalDateTime inputDate;
 	static Scanner scan = new Scanner(System.in);
@@ -190,6 +190,10 @@ public class MRSApp {
 
 		Date parsedDate = null;
 		LocalDate checkValidDate = null;
+//		 This is the actual current date
+//		LocalDateTime currentDate = LocalDateTime.now();
+		
+//		 Assume the actual date is 2021-06-01
 		LocalDateTime currentDate = generateDateTime("2021-06-01", "00:00");		
 		boolean isDateFormatValid = true;
 
@@ -496,7 +500,7 @@ public class MRSApp {
 			System.out.println("\tSenior Citizen\t: Php " + price * .80 *numOfSenior+
 						"\n\t  " + numOfSenior + " @  " + price * .80);
 		}
-		
+		System.out.println("\n\t------------------------------------");
 		System.out.println("\tTotal Price\t: Php " + totalPrice);
 	}
 
