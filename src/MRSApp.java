@@ -491,10 +491,14 @@ public class MRSApp {
 		float price = (isPremiere ? 500 : 350);
 		byte numOfRegular = (byte) (viewerCount.length - numOfSenior);
 		
+		numOfRegular = (byte) (viewerCount.length - numOfSenior);
+		
 		System.out.println("\nTicket Reservation Details:\n");
 		
-		if(isPremiere)	System.out.println("\t\tPremiere Movie");
-		
+		if(isPremiere){
+			numOfRegular = (byte) (viewerCount.length);
+			System.out.println("\t\tPremiere Movie");
+		}
 		if(numOfRegular > 0)
 			System.out.println("\tRegular\t\t: Php " + price * numOfRegular+
 					"\n\t  " + numOfRegular + "    @  " + price);
