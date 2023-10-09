@@ -242,7 +242,7 @@ public class MRSApp {
 				// Display movie schedules
 				if (movieListByDate.size() == 0) {
 					System.out.println("\nNo Movies Available on this day.");
-					return false;
+					continue;
 				}else {
 					System.out.println("\nMovie Schedule ID\tTime Start\tCinema\tTitle");
 					for (MovieSchedule item : movieListByDate) {
