@@ -4,7 +4,7 @@ public class Movie {
 	private String movieName;
 	private float duration;
 	private byte cinemaNum;
-	
+
 	public Movie(short movieId, String movieName, float duration, byte cinemaNum) {
 		super();
 		this.movieId = movieId;
@@ -28,5 +28,5 @@ public class Movie {
 	public byte getCinemaNum() {
 		return cinemaNum;
 	}
-	
+
 }

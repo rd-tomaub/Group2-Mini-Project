@@ -18,7 +18,7 @@ public class SeatLayout {
 				seats.put(key, key);
 			}
 		}
-	}	
+	}
 
 	public void displaySeatLayout() {
 		String key;
@@ -47,14 +47,14 @@ public class SeatLayout {
 		return alpha[index];
 	}
 
-	public boolean validSeatFormat(String seatCode){
-		if(seatCode.length() != 2)
+	public boolean validSeatFormat(String seatCode) {
+		if (seatCode.length() != 2)
 			return false;
-		if(!(seatCode.charAt(0) >= 'A' && seatCode.charAt(0) <= 'H'))
+		if (!(seatCode.charAt(0) >= 'A' && seatCode.charAt(0) <= 'H'))
 			return false;
-		if(!(seatCode.charAt(1) >= '1' && seatCode.charAt(1) <= '5'))
+		if (!(seatCode.charAt(1) >= '1' && seatCode.charAt(1) <= '5'))
 			return false;
-	
+
 		return true;
 	}
 
@@ -62,25 +62,25 @@ public class SeatLayout {
 		// assumes that more than one seat code is received.
 
 		String[] temp = seatCodes.split(",");
-		int i=0, j;
-		byte validCounter=0;
+		int i = 0, j;
+		byte validCounter = 0;
 
-		for(String seatCode : temp){
+		for (String seatCode : temp) {
 			seatCode = seatCode.trim();
-			if(validSeatFormat(seatCode) && !(seats.get(seatCode).equals("**")))
+			if (validSeatFormat(seatCode) && !(seats.get(seatCode).equals("**")))
 				validCounter++;
 			else
 				return false;
-			
-			for(j=i+1; j<temp.length; j++){
-				if(seatCode.equals(temp[j].trim()))
+
+			for (j = i + 1; j < temp.length; j++) {
+				if (seatCode.equals(temp[j].trim()))
 					return false;
 			}
 			i++;
 		}
 
-		if (validCounter == (byte)temp.length) {
-			if (numOfSenior <= validCounter && numOfSenior >= 0) 
+		if (validCounter == (byte) temp.length) {
+			if (numOfSenior <= validCounter && numOfSenior >= 0)
 				return true;
 		}
 
@@ -91,15 +91,15 @@ public class SeatLayout {
 		// assumes that more than one seat code is received.
 		String[] temp = seatCodes.split(",");
 		byte validCounter = 0;
-		
-		for(String seatCode: temp) {
+
+		for (String seatCode : temp) {
 			seatCode = seatCode.trim();
 			if (validSeatFormat(seatCode) && seats.get(seatCode).equals("**"))
 				validCounter++;
-			else 
+			else
 				break;
 		}
-		if(validCounter == (byte) temp.length)
+		if (validCounter == (byte) temp.length)
 			return true;
 
 		return false;

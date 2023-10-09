@@ -6,7 +6,7 @@ public class MovieSchedule {
 	private Movie movie;
 	private boolean isPremiereShow;
 	private SeatLayout seats;
-	
+
 	public MovieSchedule(short movieScheduleId, LocalDateTime showingDateTime, Movie movie, boolean isPremiereShow,
 			short seats) {
 		super();
@@ -36,5 +36,5 @@ public class MovieSchedule {
 	public SeatLayout getSeats() {
 		return seats;
 	}
-	
+
 }

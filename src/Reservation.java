@@ -1,5 +1,4 @@
 
-
 public class Reservation {
 	private int reservationNum;
 	private String seatCodes;
@@ -33,8 +32,8 @@ public class Reservation {
 	public String toString() {
 		String dateTime = movie.getShowingDateTime() + "";
 		String[] splittedDateTime = dateTime.split("T");
-		String data = "\"" + reservationNum + "\",\"" + splittedDateTime[0] + "\",\"" + movie.getMovie().getCinemaNum() + "\",\""
-				+ splittedDateTime[1] + "\"," + "\"" + seatCodes + "\"" + ",\"" + totalPrice + "\"";
+		String data = "\"" + reservationNum + "\",\"" + splittedDateTime[0] + "\",\"" + movie.getMovie().getCinemaNum()
+				+ "\",\"" + splittedDateTime[1] + "\"," + "\"" + seatCodes + "\"" + ",\"" + totalPrice + "\"";
 
 		return data;
 	}
