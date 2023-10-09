@@ -62,6 +62,15 @@ public class MRSApp {
 						try {
 							parsedMovieId = Short.parseShort(response);
 							selectedMovieSched = app.movieSchedules.get(parsedMovieId - 1);
+
+							// add filter that checks if 
+							// current time is lesser than the showing time of the chosen movie
+							// E.g. Movie X starts at 2:30 PM, but current time is 4:00, 
+							// so reservation shouldn't be valid							
+							if(inputDate.isAfter(selectedMovieSched.getShowingDateTime())){
+								System.out.println("\nMovie " + selectedMovieSched.getMovie().getMovieName() +" has already started.\n");
+								continue;
+							}
 							app.displaySeatLayout(selectedMovieSched);
 							invalidInput = false;
 						} catch (Exception e) {
@@ -72,7 +81,6 @@ public class MRSApp {
 
 				// just enter here if the logic process above is successful
 				while (!invalidInput) {
-					invalidInput = true;
 					System.out.print("\nPlease input seats to be reserved for this transaction: ");
 					seatCodesInput = scan.next().toUpperCase();
 					
@@ -105,7 +113,7 @@ public class MRSApp {
 
 							app.addReservationCSV(selectedMovieSched, seatCodesInput, totalPrice);
 							app.printTicketDetails(seatCodesInput, numOfSenior, selectedMovieSched.isPremiereShow(), totalPrice);
-							invalidInput = false;
+							invalidInput = true; // stops the loop
 						} else if (response.equalsIgnoreCase("n") || response.equalsIgnoreCase("esc"))
 							break;
 						else
@@ -200,7 +208,7 @@ public class MRSApp {
 				}
 				// parse date to a valid Date object
 				parsedDate = expectedDateFormat.parse(date);
-				inputDate = generateDateTime(date, null);
+				inputDate = generateDateTime(date, "17:00");
 			} catch (Exception e) {
 				System.out.println("\nInvalid date input.");
 				continue;
@@ -236,7 +244,12 @@ public class MRSApp {
 
 	public void addReservationCSV(MovieSchedule movieSched, String seatCodes, float price) {
 		int lastObj = reservations.size() - 1;
-		int reservationNum = reservations.get(lastObj).getReservationNum() + 1;;
+		int reservationNum;
+		
+		if(reservations.size() == 0)
+			reservationNum = 1234820;
+		else
+			reservationNum = reservations.get(lastObj).getReservationNum() + 1;
 
 		Reservation reservationObj = new Reservation(reservationNum, seatCodes, movieSched, price);
 		reservations.add(reservationObj);
@@ -257,6 +270,8 @@ public class MRSApp {
 
 		movieSched.getSeats().displaySeatLayout();
 		System.out.println("\nReservation ID: " + reservationNum);
+		
+	
 	}
 
 	public void removeReservationCSV(Reservation reservationObj) {
