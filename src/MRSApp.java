@@ -19,8 +19,8 @@ public class MRSApp {
 
 	private final String MOVIES = "MOVIES";
 	private final String RESERVATIONS = "RESERVATIONS";
-	private final String MOVIESCHED_CSV_PATH = "C:/Users/Lenovo/Downloads/MovieSchedule.csv";
-	private final String RESERVATION_CSV_PATH = "C:/Users/Lenovo/Downloads/Reservations.csv";
+	private final String MOVIESCHED_CSV_PATH = "C:/Users/Rd/Downloads/MovieSchedule.csv";
+	private final String RESERVATION_CSV_PATH = "C:/Users/Rd/Downloads/Reservations.csv";
 	private static LocalDateTime inputDate;
 	static Scanner scan = new Scanner(System.in);
 	
@@ -92,7 +92,6 @@ public class MRSApp {
 				while (!invalidInput) {
 					System.out.print("\nPlease input seats to be reserved for this transaction: ");
 					seatCodesInput = scan.next().toUpperCase();
-
 					if (seatCodesInput.equalsIgnoreCase("esc"))
 						break;
 					String[] viewerCount = seatCodesInput.split(",");
@@ -166,7 +165,7 @@ public class MRSApp {
 										System.out.print(", ");
 									seatCodeLength--;
 								}
-								System.out.print("\n\nDo you want to proceed on the cancellation? [Y/N]: ");
+								System.out.print("\n\nDo you still want to proceed on the cancellation? [Y/N]: ");
 								response= scan.next();
 							
 								if (response.equalsIgnoreCase("y")) {
@@ -385,42 +384,34 @@ public class MRSApp {
 		MovieSchedule MSTemp;
 
 		for (String item : csvData) {
-//			System.out.println(item);
+
 			try {
 				columns = item.substring(1, item.length() - 1).split("\",\"");
-				title = columns[4];
-				dateTime = generateDateTime(columns[0].replace("\"", ""), columns[2]);
-
-				int cinema = Integer.parseInt(columns[1]);
 				// mapping columns to Class attributes
-				if(cinema>5||cinema<=0) {
-					cinemaNum = Byte.parseByte("X");
-				}else {
-					cinemaNum = Byte.parseByte(columns[1]);
-				}
+				title = columns[4];
+
 				// columns[0] is date, columns[2] is time
-					isPremiere = Boolean.parseBoolean(columns[3]);
-				if(Float.parseFloat(columns[5])<=0){
+				dateTime = generateDateTime(columns[0].replace("\"", ""), columns[2]);
+				isPremiere = Boolean.parseBoolean(columns[3]);
+
+				if(Integer.parseInt(columns[1]) > 5 || Integer.parseInt(columns[1]) <= 0)
+					cinemaNum = Byte.parseByte("X");
+				else
+					cinemaNum = Byte.parseByte(columns[1]);
+				
+				if(Float.parseFloat(columns[5]) <= 0)
 					duration = Float.parseFloat("X");
-				}else{
+				else
 					duration = Float.parseFloat(columns[5]);
-				}
 
 				// if error happens, the loop would just iterate.
 				// object creation
 				movieTemp = new Movie(++movieId, title, duration, cinemaNum);
 				MSTemp = new MovieSchedule(++movieScheduleId, dateTime, movieTemp, isPremiere, ++seatLayoutId);
-
 				
 				movieSchedules.add(MSTemp);
-			} catch (Exception e) {
-//				e.printStackTrace();
-			}
+			} catch (Exception e) {}
 		}
-		
-//		for(MovieSchedule item:movieSchedules) {
-//			System.out.println(item.isPremiereShow());
-//		}
 	}
 
 //	helper methods
@@ -440,7 +431,7 @@ public class MRSApp {
 		int hours = (int) duration; // Extract the whole number part (hours)
         int minutes = (int) ((duration - hours) * 60); // Convert the decimal part to minutes
 		
-		return hours + " Hrs " + minutes + " Min";
+		return hours + " Hr(s) " + minutes + " Min(s)";
 	}
 
 	private LocalDateTime generateDateTime(String date,  String time) {
@@ -541,8 +532,8 @@ public class MRSApp {
 		byte numOfRegular = (byte) (viewerCount.length - numOfSenior);
 
 		System.out.println("\nTicket Reservation Details:\n");
-
-		System.out.println((isPremiere ? "\t\tPremiere Movie" : ""));
+			
+		System.out.println(isPremiere?"":("\t\tPremiere Movie"));
 		if (numOfRegular > 0) {
 			System.out.println(
 					"\tRegular\t\t: Php " + price * numOfRegular + "\n\t  " + numOfRegular + "    @  " + price);
@@ -552,7 +543,7 @@ public class MRSApp {
 			System.out.println((isPremiere ? "" : "\n\t20% Discount for Senior Citizen" ));
 			System.out.println(
 					"\tSenior Citizen\t: Php " +  priceSenior
-							+ "\n\t  " + numOfSenior + "    @  " + price * .80);
+							+ "\n\t  " + numOfSenior + "    @  " + priceSenior);
 		}
 
 		System.out.println("\n\t------------------------------------");
