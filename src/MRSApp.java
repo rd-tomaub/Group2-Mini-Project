@@ -16,8 +16,8 @@ public class MRSApp {
 	
 	private final String MOVIES = "MOVIES";
 	private final String RESERVATIONS = "RESERVATIONS";
-	private final String MOVIESCHED_CSV_PATH ="C:/Users/adrian.enriquez/Downloads/MovieSchedule.csv";
-	private final String RESERVATION_CSV_PATH ="C:/Users/adrian.enriquez/Downloads/Reservations.csv";
+	private final String MOVIESCHED_CSV_PATH ="C:/Users/prince.opelinia/Downloads/MovieSchedule.csv";
+	private final String RESERVATION_CSV_PATH ="C:/Users/prince.opelinia/Downloads/Reservations.csv";
 	
 	private static LocalDateTime inputDate;
 	static Scanner scan = new Scanner(System.in);
@@ -72,6 +72,7 @@ public class MRSApp {
 								continue;
 							}
 							app.displaySeatLayout(selectedMovieSched);
+							System.out.println("\nLegend: [Xn] = available seat, [**] = reserved seat");
 							invalidInput = false;
 						} catch (Exception e) {
 							System.out.println("\nInvalid movie number");
@@ -103,16 +104,17 @@ public class MRSApp {
 						continue;
 					}
 
-					if((selectedMovieSched.getSeats().isValidReservation(seatCodesInput, numOfSenior))){
+					if ((selectedMovieSched.getSeats().isValidReservation(seatCodesInput, numOfSenior))) {
+						float totalPrice = app.calculateTotalPrice((byte) viewerCount.length, numOfSenior,
+								selectedMovieSched.isPremiereShow());
+						app.printTicketDetails(seatCodesInput, numOfSenior, selectedMovieSched.isPremiereShow(),
+								totalPrice);
 						System.out.print("\nDo you want to proceed with reservation? [Y/N]: ");
 						response = scan.next();
 
 						if (response.equalsIgnoreCase("y")) {
-							float totalPrice = app.calculateTotalPrice((byte) viewerCount.length, numOfSenior,
-								selectedMovieSched.isPremiereShow());
 
 							app.addReservationCSV(selectedMovieSched, seatCodesInput, totalPrice);
-							app.printTicketDetails(seatCodesInput, numOfSenior, selectedMovieSched.isPremiereShow(), totalPrice);
 							invalidInput = true; // stops the loop
 						} else if (response.equalsIgnoreCase("n") || response.equalsIgnoreCase("esc"))
 							break;
@@ -492,13 +494,13 @@ public class MRSApp {
 		
 		if(numOfRegular > 0)
 			System.out.println("\tRegular\t\t: Php " + price * numOfRegular+
-					"\n\t  " + numOfRegular + " 1 @  " + price);
+					"\n\t  " + numOfRegular + "    @  " + price);
 		
 		if(!isPremiere && numOfSenior > 0){
 			System.out.println("\n\t20 % Discount for Senior Citizen");
 
 			System.out.println("\tSenior Citizen\t: Php " + price * .80 *numOfSenior+
-						"\n\t  " + numOfSenior + " @  " + price * .80);
+						"\n\t  " + numOfSenior + "    @  " + price * .80);
 		}
 		System.out.println("\n\t------------------------------------");
 		System.out.println("\tTotal Price\t: Php " + totalPrice);
