@@ -252,9 +252,10 @@ public class MRSApp {
 			ArrayList<MovieSchedule> movieListByDate = filterMoviesByDate(date);
 			if (inputDate.isAfter(currentDate) || inputDate.isEqual(currentDate)) {
 				// Display movie schedules
-				if (movieListByDate.size() == 0)
+				if (movieListByDate.size() == 0) {
 					System.out.println("\nNo Movies Available on this day.");
-				else {
+					return false;
+				}else {
 					System.out.println("\nMovie Schedule ID\tTime Start\tCinema\tTitle");
 					for (MovieSchedule item : movieListByDate) {
 						System.out.println("[" + item.getMovieScheduleId() + "]\t\t\t"
@@ -385,6 +386,7 @@ public class MRSApp {
 		MovieSchedule MSTemp;
 
 		for (String item : csvData) {
+//			System.out.println(item);
 			try {
 				columns = item.substring(1, item.length() - 1).split("\",\"");
 				title = columns[4];
@@ -401,10 +403,15 @@ public class MRSApp {
 				movieTemp = new Movie(++movieId, title, duration, cinemaNum);
 				MSTemp = new MovieSchedule(++movieScheduleId, dateTime, movieTemp, isPremiere, ++seatLayoutId);
 
+				
 				movieSchedules.add(MSTemp);
 			} catch (Exception e) {
 			}
 		}
+		
+//		for(MovieSchedule item:movieSchedules) {
+//			System.out.println(item.toString());
+//		}
 	}
 
 //	helper methods
