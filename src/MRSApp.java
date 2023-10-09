@@ -82,6 +82,7 @@ public class MRSApp {
 
 				// just enter here if the logic process above is successful
 				while (!invalidInput) {
+			
 					System.out.print("\nPlease input seats to be reserved for this transaction: ");
 					seatCodesInput = scan.next().toUpperCase();
 					
@@ -150,14 +151,34 @@ public class MRSApp {
 						if (reservationObj != null) {
 							app.displaySeatLayout(reservationObj.getMovie());
 							while(invalidInput){
-								System.out.print("\nDo you want to proceed on the cancellation? [Y/N]: ");
+								String[] seatCodesArray = reservationObj.getSeatCodes().split(",");
+								int seatCodeLength = seatCodesArray.length;
+								
+								System.out.println("\nSeats to be cancelled: ");
+								
+								for (String item : seatCodesArray) {
+									System.out.print(item);
+									
+									if(seatCodeLength != 1)
+										System.out.print(",");
+									
+									
+									seatCodeLength--;
+								}
+								
+								
+								System.out.print("\n\nDo you want to proceed on the cancellation? [Y/N]: ");
 								String inputResponse = scan.next();
 							
 								if (inputResponse.equalsIgnoreCase("y")) {
 									String seatCodes = reservationObj.getSeatCodes();
 									if (reservationObj.getMovie().getSeats().isValidCancellation(seatCodes))
-										app.removeReservationCSV(reservationObj);
-								
+									{	app.removeReservationCSV(reservationObj);
+									
+									System.out.println("\nTicket " + reservationObj.getReservationNum() + " is cancelled.");
+									app.displaySeatLayout(reservationObj.getMovie());
+									
+									}
 									else 
 										System.out.println("\nInvalid ticket cancellation");
 									
@@ -282,11 +303,17 @@ public class MRSApp {
 
 	public void removeReservationCSV(Reservation reservationObj) {
 		String[] seatCodes = reservationObj.getSeatCodes().split(",");
-
+		
 		for (String item : seatCodes) {
+			
 			reservationObj.getMovie().getSeats().cancelSeat(item);
+		
+		
 		}
-		System.out.println("Ticket " + reservationObj.getReservationNum() + " is cancelled.");
+		
+		
+		
+		
 		reservations.remove(reservationObj);
 
 		// write to CSV
@@ -497,7 +524,7 @@ public class MRSApp {
 					"\n\t  " + numOfRegular + "    @  " + price);
 		
 		if(!isPremiere && numOfSenior > 0){
-			System.out.println("\n\t20 % Discount for Senior Citizen");
+			System.out.println("\n\t20 % Discount for Senior Citizen");	
 
 			System.out.println("\tSenior Citizen\t: Php " + price * .80 *numOfSenior+
 						"\n\t  " + numOfSenior + "    @  " + price * .80);
