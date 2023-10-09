@@ -16,8 +16,8 @@ public class MRSApp {
 	
 	private final String MOVIES = "MOVIES";
 	private final String RESERVATIONS = "RESERVATIONS";
-	private final String MOVIESCHED_CSV_PATH ="C:/Users/prince.opelinia/Downloads/MovieSchedule.csv";
-	private final String RESERVATION_CSV_PATH ="C:/Users/prince.opelinia/Downloads/Reservations.csv";
+	private final String MOVIESCHED_CSV_PATH ="C:/Users/Rd/Downloads/MovieSchedule.csv";
+	private final String RESERVATION_CSV_PATH ="C:/Users/Rd/Downloads/Reservations.csv";
 	
 	private static LocalDateTime inputDate;
 	static Scanner scan = new Scanner(System.in);
@@ -47,8 +47,7 @@ public class MRSApp {
 			case "1":
 				if (!app.displayMovieSchedules())
 					break;
-
-				// Initialize movieId
+				
 				short parsedMovieId = -1;
 				
 				while (invalidInput) {
@@ -75,20 +74,18 @@ public class MRSApp {
 							System.out.println("\nLegend: [Xn] = available seat, [**] = reserved seat");
 							invalidInput = false;
 						} catch (Exception e) {
-							System.out.println("\nInvalid movie number");
+							System.out.println("\nInvalid movie number.");
 						}
 					}
 				}
 
 				// just enter here if the logic process above is successful
 				while (!invalidInput) {
-			
 					System.out.print("\nPlease input seats to be reserved for this transaction: ");
 					seatCodesInput = scan.next().toUpperCase();
 					
 					if(seatCodesInput.equalsIgnoreCase("esc")) 
 						break;
-
 					String[] viewerCount = seatCodesInput.split(",");
 
 					System.out.print("\nHow many senior citizens? ");
@@ -106,16 +103,14 @@ public class MRSApp {
 					}
 
 					if ((selectedMovieSched.getSeats().isValidReservation(seatCodesInput, numOfSenior))) {
-						float totalPrice = app.calculateTotalPrice((byte) viewerCount.length, numOfSenior,
-								selectedMovieSched.isPremiereShow());
-						app.printTicketDetails(seatCodesInput, numOfSenior, selectedMovieSched.isPremiereShow(),
-								totalPrice);
 						System.out.print("\nDo you want to proceed with reservation? [Y/N]: ");
 						response = scan.next();
 
 						if (response.equalsIgnoreCase("y")) {
-
+							float totalPrice = app.calculateTotalPrice((byte) viewerCount.length, numOfSenior, selectedMovieSched.isPremiereShow());
+							
 							app.addReservationCSV(selectedMovieSched, seatCodesInput, totalPrice);
+							app.printTicketDetails(seatCodesInput, numOfSenior, selectedMovieSched.isPremiereShow(), totalPrice);
 							invalidInput = true; // stops the loop
 						} else if (response.equalsIgnoreCase("n") || response.equalsIgnoreCase("esc"))
 							break;
@@ -155,40 +150,32 @@ public class MRSApp {
 								int seatCodeLength = seatCodesArray.length;
 								
 								System.out.println("\nSeats to be cancelled: ");
-								
 								for (String item : seatCodesArray) {
 									System.out.print(item);
-									
 									if(seatCodeLength != 1)
-										System.out.print(",");
-									
-									
+										System.out.print(", ");
 									seatCodeLength--;
 								}
-								
-								
 								System.out.print("\n\nDo you want to proceed on the cancellation? [Y/N]: ");
-								String inputResponse = scan.next();
+								response= scan.next();
 							
-								if (inputResponse.equalsIgnoreCase("y")) {
+								if (response.equalsIgnoreCase("y")) {
 									String seatCodes = reservationObj.getSeatCodes();
-									if (reservationObj.getMovie().getSeats().isValidCancellation(seatCodes))
-									{	app.removeReservationCSV(reservationObj);
-									
-									System.out.println("\nTicket " + reservationObj.getReservationNum() + " is cancelled.");
-									app.displaySeatLayout(reservationObj.getMovie());
-									
+
+									if (reservationObj.getMovie().getSeats().isValidCancellation(seatCodes)){
+										app.removeReservationCSV(reservationObj);
+										System.out.println("\nTicket " + reservationObj.getReservationNum() + " is cancelled.");
+										app.displaySeatLayout(reservationObj.getMovie());
 									}
 									else 
-										System.out.println("\nInvalid ticket cancellation");
+										System.out.println("\nInvalid ticket cancellation.");
 									
 									invalidInput = false;	
 								}
-								else if(inputResponse.equalsIgnoreCase("n") || inputResponse.equalsIgnoreCase("esc")){
+								else if(response.equalsIgnoreCase("n") || response.equalsIgnoreCase("esc")){
 									invalidInput = false;
 									break;
 								}
-									
 								else System.out.println("\nInvalid input.");
 							}
 						}
@@ -198,7 +185,7 @@ public class MRSApp {
 				System.out.println();
 				break;
 			default:
-				System.out.println("\nPlease input valid response\n");
+				System.out.println("\nPlease input valid response.\n");
 				break;
 			}
 		} while (runApp);
@@ -210,11 +197,10 @@ public class MRSApp {
 		String expectedFormat = "yyyy-MM-dd";
 		SimpleDateFormat expectedDateFormat = new SimpleDateFormat(expectedFormat);
 		DateTimeFormatter validDateFormat = DateTimeFormatter.ofPattern(expectedFormat);
-
 		Date parsedDate = null;
 		LocalDate checkValidDate = null;
 //		 This is the actual current date
-//		LocalDateTime currentDate = LocalDateTime.now();
+//		 LocalDateTime currentDate = LocalDateTime.now();
 		
 //		 Assume the actual date is 2021-06-01
 		LocalDateTime currentDate = generateDateTime("2021-06-01", "00:00");		
@@ -292,28 +278,20 @@ public class MRSApp {
 
 		// updating the seat layout
 		String[] seatCode = seatCodes.split(",");
-		for(String s : seatCode)
+		for(String s : seatCode){
 			movieSched.getSeats().reserveSeat(s);
+		}
 
-		movieSched.getSeats().displaySeatLayout();
+		displaySeatLayout(movieSched);
 		System.out.println("\nReservation ID: " + reservationNum);
-		
-	
 	}
 
 	public void removeReservationCSV(Reservation reservationObj) {
 		String[] seatCodes = reservationObj.getSeatCodes().split(",");
-		
+
 		for (String item : seatCodes) {
-			
 			reservationObj.getMovie().getSeats().cancelSeat(item);
-		
-		
 		}
-		
-		
-		
-		
 		reservations.remove(reservationObj);
 
 		// write to CSV
@@ -420,7 +398,6 @@ public class MRSApp {
 		movieSched.getSeats().displaySeatLayout();
 	}
 
-
 	private LocalDateTime generateDateTime(String date,  String time) {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 		String temp = date + " " ;
@@ -456,7 +433,6 @@ public class MRSApp {
 
 		try {
 			br = new BufferedReader(new FileReader(csvFile));
-			
 			while ((line = br.readLine()) != null) {
 				csvData.add(line);
 			}
@@ -549,7 +525,6 @@ public class MRSApp {
 				break;
 			} 
 		}
-
 		return reservationItem;
 	}
 }
