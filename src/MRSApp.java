@@ -7,6 +7,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Scanner;
 
@@ -239,8 +241,15 @@ public class MRSApp {
 				if (movieListByDate.size() == 0)
 					System.out.println("\nNo Movies Available on this day.");
 				else{
+					Comparator<MovieSchedule> customComparator = Comparator
+						.comparing((MovieSchedule movieSchedule) -> movieSchedule.getMovie().getCinemaNum())
+						.thenComparing(movieSchedule -> movieSchedule.getShowingDateTime());
+						
+					ArrayList<MovieSchedule> tempList = new ArrayList<>(movieListByDate);
+					Collections.sort(tempList, customComparator);
+
 					System.out.println("\nMovie Schedule ID\tTime Start\tCinema\tTitle");
-					for (MovieSchedule item : movieListByDate) {
+					for (MovieSchedule item : tempList) {
 						System.out.println("[" + item.getMovieScheduleId() + "]\t\t\t"
 								+ generateAmPm(item.getShowingDateTime()) + "\t" + item.getMovie().getCinemaNum() + "\t" + item.getMovie().getMovieName());
 					}	
