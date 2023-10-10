@@ -19,7 +19,7 @@ public class MRSApp {
 
 	private final String MOVIES = "MOVIES";
 	private final String RESERVATIONS = "RESERVATIONS";
-	private final String MOVIESCHED_CSV_PATH = "C:/Users/Rd/Downloads/MovieSchedule.csv";
+	private final String MOVIESCHED_CSV_PATH = "C:/Users/Rd/Downloads/Movies.csv";
 	private final String RESERVATION_CSV_PATH = "C:/Users/Rd/Downloads/Reservations.csv";
 	private static LocalDateTime inputDate;
 	static Scanner scan = new Scanner(System.in);
@@ -344,12 +344,30 @@ public class MRSApp {
 		for (String item : rsvData) {
 			try {
 				columns = item.substring(1, item.length() - 1).split("\",\"");
-				ticketNum = Integer.parseInt(columns[0]);
-				cinema = Byte.parseByte(columns[2]);
-				price = Float.parseFloat(columns[5]);
+
+				if(Integer.parseInt(columns[0]) > 0)
+					ticketNum = Integer.parseInt(columns[0]);	
+				else
+					ticketNum = Integer.parseInt("X");
+				
+				if(Byte.parseByte(columns[2]) > 0)
+					cinema = Byte.parseByte(columns[2]);
+				else
+					ticketNum = Byte.parseByte("X");
+				
 				// columns[1] is date, columns[3] is time
 				dateTime = generateDateTime(columns[1], columns[3]);
-				seatCodes = columns[4];
+
+				if((columns[4].equalsIgnoreCase("null")))
+					continue;
+				else
+					seatCodes = columns[4];
+				
+				if(Float.parseFloat(columns[5]) > 0)
+					price = Float.parseFloat(columns[5]);
+				else
+					price = Float.parseFloat("X");
+
 			} catch (Exception e) {
 				continue;
 			}
@@ -381,41 +399,48 @@ public class MRSApp {
 		short movieId = 0, movieScheduleId = 0, seatLayoutId = 0;
 
 		// columns from CSV
-		String title;
+		String title="";
 		boolean isPremiere = false;
 		byte cinemaNum = -1;
 		float duration = -1f;
-		LocalDateTime dateTime;
+		LocalDateTime dateTime=null;
 
 		Movie movieTemp;
 		MovieSchedule MSTemp;
 
 		for (String item : csvData) {
-
 			try {
-				columns = item.substring(1, item.length() - 1).split("\",\"");
 				// mapping columns to Class attributes
-				title = columns[4];
-
+				columns = item.substring(1, item.length() - 1).split("\",\"");
+				
 				// columns[0] is date, columns[2] is time
 				dateTime = generateDateTime(columns[0].replace("\"", ""), columns[2]);
-				isPremiere = Boolean.parseBoolean(columns[3]);
-
-				if(Integer.parseInt(columns[1]) > 5 || Integer.parseInt(columns[1]) <= 0)
-					cinemaNum = Byte.parseByte("X");
-				else
-					cinemaNum = Byte.parseByte(columns[1]);
 				
-				if(Float.parseFloat(columns[5]) <= 0)
-					duration = Float.parseFloat("X");
+				if(Byte.parseByte(columns[1]) > 0)
+					cinemaNum = Byte.parseByte(columns[1]);
 				else
-					duration = Float.parseFloat(columns[5]);
+					cinemaNum = Byte.parseByte("X");
 
+				// true or false values only
+				if(columns[3].equalsIgnoreCase("true") || columns[3].equalsIgnoreCase("false"))
+					isPremiere = Boolean.parseBoolean(columns[3]);
+				else
+					continue;
+				
+				if((columns[4].equalsIgnoreCase("null")))
+					continue;
+				else	
+					title = columns[4];
+				
+				if(Float.parseFloat(columns[5]) > 0)
+					duration = Float.parseFloat(columns[5]);
+				else
+					duration = Float.parseFloat("X");
+					
 				// if error happens, the loop would just iterate.
 				// object creation
 				movieTemp = new Movie(++movieId, title, duration, cinemaNum);
 				MSTemp = new MovieSchedule(++movieScheduleId, dateTime, movieTemp, isPremiere, ++seatLayoutId);
-				
 				movieSchedules.add(MSTemp);
 			} catch (Exception e) {}
 		}
@@ -444,11 +469,13 @@ public class MRSApp {
 	private LocalDateTime generateDateTime(String date,  String time) {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 		String temp = date + " ";
+		String hour;
+		String minute;
 
 		if (time == null) {
 			LocalDateTime currentDateTime = LocalDateTime.now();
-			String hour = currentDateTime.getHour() + "";
-			String minute = currentDateTime.getMinute() + "";
+			hour = currentDateTime.getHour() + "";
+			minute = currentDateTime.getMinute() + "";
 
 			if (hour.length() == 1)
 				temp += "0";
@@ -457,9 +484,21 @@ public class MRSApp {
 			if (minute.length() == 1)
 				temp += "0";
 			temp += minute + ":00";
-		} else
-			temp += time + ":00";
+		} else{
+			String[] timeParts = time.split(":");
+			hour = timeParts[0];
+			minute = timeParts[1];
 
+			if(hour.length() == 1)
+				temp += "0";
+			temp += hour + ":";
+
+			if(minute.length() == 1)
+				temp += "0";
+		
+			temp += minute + ":00";
+		}
+			
 		LocalDateTime dateTime = LocalDateTime.parse(temp, formatter);
 
 		return dateTime;
