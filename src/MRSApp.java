@@ -19,7 +19,7 @@ public class MRSApp {
 
 	private final String MOVIES = "MOVIES";
 	private final String RESERVATIONS = "RESERVATIONS";
-	private final String MOVIESCHED_CSV_PATH = "C:/Users/Rd/Downloads/ModifiedCSV.csv";
+	private final String MOVIESCHED_CSV_PATH = "C:/Users/Rd/Downloads/Movies.csv";
 	private final String RESERVATION_CSV_PATH = "C:/Users/Rd/Downloads/Reservations.csv";
 	private static LocalDateTime inputDate;
 	static Scanner scan = new Scanner(System.in);
@@ -410,7 +410,6 @@ public class MRSApp {
 
 		for (String item : csvData) {
 			try {
-				++movieScheduleId;
 				// mapping columns to Class attributes
 				columns = item.substring(1, item.length() - 1).split("\",\"");
 				
@@ -441,12 +440,10 @@ public class MRSApp {
 				// if error happens, the loop would just iterate.
 				// object creation
 				movieTemp = new Movie(++movieId, title, duration, cinemaNum);
-				MSTemp = new MovieSchedule(movieScheduleId, dateTime, movieTemp, isPremiere, ++seatLayoutId);
-				System.out.println(MSTemp);
+				MSTemp = new MovieSchedule(++movieScheduleId, dateTime, movieTemp, isPremiere, ++seatLayoutId);
 				movieSchedules.add(MSTemp);
 			} catch (Exception e) {}
 		}
-		System.out.println("Total items: " +movieScheduleId);
 	}
 
 //	helper methods
