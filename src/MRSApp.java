@@ -2,7 +2,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -19,8 +18,12 @@ public class MRSApp {
 
 	private final String MOVIES = "MOVIES";
 	private final String RESERVATIONS = "RESERVATIONS";
-	private final String MOVIESCHED_CSV_PATH = "C:/Users/Rd/Downloads/Movies.csv";
+	private final String MOVIESCHED_CSV_PATH = "C:/Users/Rd/Downloads/MovieSchedule_ST.csv";
 	private final String RESERVATION_CSV_PATH = "C:/Users/Rd/Downloads/Reservations.csv";
+	private final float PREMIERE_SHOW_PRICE = 500.0F;
+	private final float NON_PREMIERE_SHOW_PRICE = 350.0F;
+	private	final float SENIOR_DISCOUNT = 0.20F;
+
 	private static LocalDateTime inputDate;
 	static Scanner scan = new Scanner(System.in);
 	
@@ -43,6 +46,7 @@ public class MRSApp {
 		Reservation reservationObj = null;
 		String seatCodesInput = "";
 		boolean invalidInput;
+		ArrayList<MovieSchedule> movieList;
 
 		boolean runApp = true;
 
@@ -53,9 +57,10 @@ public class MRSApp {
 			switch (response) {
 
 			case "1":
-				if (!app.displayMovieSchedules())
+				movieList = app.displayMovieSchedules();
+				if(movieList == null)
 					break;
-				
+
 				short parsedMovieId = -1;
 
 				while (invalidInput) {
@@ -67,8 +72,14 @@ public class MRSApp {
 					else {
 						try {
 							parsedMovieId = Short.parseShort(response);
-							selectedMovieSched = app.movieSchedules.get(parsedMovieId - 1);
-
+							// if(parse)
+							short first = movieList.get(0).getMovieScheduleId();
+							short last = movieList.get(movieList.size()-1).getMovieScheduleId();
+							if(first <= parsedMovieId && last >= parsedMovieId)
+								selectedMovieSched = app.movieSchedules.get(parsedMovieId - 1);
+							else // forcing to throw exception, just to print error, then loop back
+								parsedMovieId = Short.parseShort("X"); 
+							
 							// add filter that checks if
 							// current time is lesser than the showing time of the chosen movie
 							// E.g. Movie X starts at 2:30 PM, but current time is 4:00,
@@ -205,7 +216,7 @@ public class MRSApp {
 		scan.close();
 	}
 
-	public boolean displayMovieSchedules() {
+	public ArrayList<MovieSchedule> displayMovieSchedules() {
 		String expectedFormat = "yyyy-MM-dd";
 		SimpleDateFormat expectedDateFormat = new SimpleDateFormat(expectedFormat);
 		DateTimeFormatter validDateFormat = DateTimeFormatter.ofPattern(expectedFormat);
@@ -213,6 +224,7 @@ public class MRSApp {
 		LocalDate checkValidDate = null;
 		String date;
 		boolean isDateFormatValid = true;
+		ArrayList<MovieSchedule> movieListByDate=null;
 
 		while (isDateFormatValid) {
 			System.out.print("\nEnter [ESC] to cancel transaction. \nEnter Date [yyyy-mm-dd]: ");
@@ -220,7 +232,7 @@ public class MRSApp {
 			// Back to main menu if user Enter ESC
 			if (date.equalsIgnoreCase("esc")){
 				System.out.println();
-				return false;
+				return null;
 			}
 				
 			try {
@@ -244,7 +256,7 @@ public class MRSApp {
 				continue;
 			}
 
-			ArrayList<MovieSchedule> movieListByDate = filterMoviesByDate(date);
+			movieListByDate = filterMoviesByDate(date);
 			if (inputDate.isAfter(currentDate) || inputDate.isEqual(currentDate)) {
 				// Display movie schedules
 				if (movieListByDate.size() == 0) {
@@ -276,7 +288,7 @@ public class MRSApp {
 
 		}
 		System.out.println();
-		return true;
+		return movieListByDate;
 	}
 
 	public void addReservationCSV(MovieSchedule movieSched, String seatCodes, float price) {
@@ -597,12 +609,12 @@ public class MRSApp {
 	}
 
 	private float calculateTotalPrice(byte numOfWatchers, byte numOfSenior, boolean isPremiere) {
-		float price = (isPremiere ? 500 : 350);
+		float price = (isPremiere ? PREMIERE_SHOW_PRICE : NON_PREMIERE_SHOW_PRICE);
 		if (isPremiere) {
 			return (price * numOfWatchers);
 		}
 
-		return (price * numOfWatchers) - (float) (price * .20 * numOfSenior);
+		return (price * numOfWatchers) - (float) (price * SENIOR_DISCOUNT * numOfSenior);
 	}
 
 	private Reservation getReservationTicketNumber(int ticketNumber) {
