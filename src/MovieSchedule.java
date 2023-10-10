@@ -1,7 +1,7 @@
 import java.time.LocalDateTime;
 
 public class MovieSchedule {
-	private short movieScheduleId;
+	private int movieScheduleId;
 	private LocalDateTime showingDateTime;
 	private Movie movie;
 	private boolean isPremiereShow;
@@ -17,7 +17,7 @@ public class MovieSchedule {
 		this.seats = new SeatLayout(seats);
 	}
 
-	public short getMovieScheduleId() {
+	public int getMovieScheduleId() {
 		return movieScheduleId;
 	}
 

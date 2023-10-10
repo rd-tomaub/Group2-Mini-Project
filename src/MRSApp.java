@@ -19,16 +19,16 @@ public class MRSApp {
 
 	private final String MOVIES = "MOVIES";
 	private final String RESERVATIONS = "RESERVATIONS";
-	private final String MOVIESCHED_CSV_PATH = "C:/Users/Rd/Downloads/ModifiedCSV.csv";
-	private final String RESERVATION_CSV_PATH = "C:/Users/Rd/Downloads/Reservations.csv";
+	private final String MOVIESCHED_CSV_PATH = "C:/Users/adrian.enriquez/Downloads/MovieSchedule_ST.csv";
+	private final String RESERVATION_CSV_PATH = "C:/Users/adrian.enriquez/Downloads/Reservations.csv";
 	private static LocalDateTime inputDate;
 	static Scanner scan = new Scanner(System.in);
 	
 //	 This is the actual current date
-//	private LocalDateTime currentDate = LocalDateTime.now();
+	private LocalDateTime currentDate = LocalDateTime.now();
 
 //	 Assume the actual date is 2021-06-01
-	private LocalDateTime currentDate = generateDateTime("2020-06-01", "17:00");
+//	private LocalDateTime currentDate = generateDateTime("2020-06-01", "17:00");
 
 	public MRSApp() {
 		movieSchedules = new ArrayList<MovieSchedule>();
@@ -259,14 +259,14 @@ public class MRSApp {
 					ArrayList<MovieSchedule> tempList = new ArrayList<>(movieListByDate);
 					Collections.sort(tempList, customComparator);
 					
-					System.out.println("\nMovie Schedule ID\tTime Start\tCinema\tTitle");
+					System.out.println("\nMovie Schedule ID\tTime Start\tPremiere\tCinema\tTitle");
 					for (MovieSchedule item : tempList) {
 						if(item.getMovie().getCinemaNum()!=cinemaGroup) {
 							System.out.println();
 							cinemaGroup = item.getMovie().getCinemaNum();
 						}
 						System.out.println("[" + item.getMovieScheduleId() + "]\t\t\t"
-								+ generateAmPm(item.getShowingDateTime()) + "\t" + item.getMovie().getCinemaNum() + "\t"
+								+ generateAmPm(item.getShowingDateTime()) + "\t" + (item.isPremiereShow() ? "YES" : "NO") + "\t\t" + item.getMovie().getCinemaNum() + "\t"
 								+ item.getMovie().getMovieName());
 					}
 				}
@@ -409,6 +409,7 @@ public class MRSApp {
 		MovieSchedule MSTemp;
 
 		for (String item : csvData) {
+//			System.out.println(item);
 			try {
 				++movieScheduleId;
 				// mapping columns to Class attributes
@@ -442,11 +443,12 @@ public class MRSApp {
 				// object creation
 				movieTemp = new Movie(++movieId, title, duration, cinemaNum);
 				MSTemp = new MovieSchedule(movieScheduleId, dateTime, movieTemp, isPremiere, ++seatLayoutId);
-				System.out.println(MSTemp);
+//				System.out.println(MSTemp);
 				movieSchedules.add(MSTemp);
-			} catch (Exception e) {}
+			} catch (Exception e) {
+			}
 		}
-		System.out.println("Total items: " +movieScheduleId);
+		System.out.println("Total items: " +movieSchedules.size());
 	}
 
 //	helper methods
@@ -582,7 +584,7 @@ public class MRSApp {
 
 		System.out.println("\nTicket Reservation Details:\n");
 			
-		System.out.println(isPremiere?"":("\t\tPremiere Movie"));
+		System.out.println(isPremiere?"\t\tPremiere Movie":"");
 		if (numOfRegular > 0) {
 			System.out.println(
 					"\tRegular\t\t: Php " + price * numOfRegular + "\n\t  " + numOfRegular + "    @  " + price);
@@ -592,7 +594,7 @@ public class MRSApp {
 			System.out.println((isPremiere ? "" : "\n\t20% Discount for Senior Citizen" ));
 			System.out.println(
 					"\tSenior Citizen\t: Php " +  priceSenior
-							+ "\n\t  " + numOfSenior + "    @  " + priceSenior);
+							+ "\n\t  " + numOfSenior + "    @  " + (isPremiere? price : price * .80));
 		}
 
 		System.out.println("\n\t------------------------------------");
