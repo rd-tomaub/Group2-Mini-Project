@@ -19,7 +19,7 @@ public class MRSApp {
 
 	private final String MOVIES = "MOVIES";
 	private final String RESERVATIONS = "RESERVATIONS";
-	private final String MOVIESCHED_CSV_PATH = "C:/Users/Rd/Downloads/Movies.csv";
+	private final String MOVIESCHED_CSV_PATH = "C:/Users/Rd/Downloads/ModifiedCSV.csv";
 	private final String RESERVATION_CSV_PATH = "C:/Users/Rd/Downloads/Reservations.csv";
 	private static LocalDateTime inputDate;
 	static Scanner scan = new Scanner(System.in);
@@ -358,10 +358,10 @@ public class MRSApp {
 				// columns[1] is date, columns[3] is time
 				dateTime = generateDateTime(columns[1], columns[3]);
 
-				if((columns[4].equalsIgnoreCase("null")))
-					continue;
+				if(!(columns[4].equalsIgnoreCase("null")) && !(columns[4].trim().equalsIgnoreCase("")))
+					seatCodes = columns[4];		
 				else
-					seatCodes = columns[4];
+					continue;
 				
 				if(Float.parseFloat(columns[5]) > 0)
 					price = Float.parseFloat(columns[5]);
@@ -410,6 +410,7 @@ public class MRSApp {
 
 		for (String item : csvData) {
 			try {
+				++movieScheduleId;
 				// mapping columns to Class attributes
 				columns = item.substring(1, item.length() - 1).split("\",\"");
 				
@@ -427,23 +428,25 @@ public class MRSApp {
 				else
 					continue;
 				
-				if((columns[4].equalsIgnoreCase("null")))
-					continue;
-				else	
+				if(!(columns[4].equalsIgnoreCase("null")) && !(columns[4].trim().equalsIgnoreCase("")))
 					title = columns[4];
+				else	
+					continue;
 				
 				if(Float.parseFloat(columns[5]) > 0)
 					duration = Float.parseFloat(columns[5]);
 				else
 					duration = Float.parseFloat("X");
-					
+
 				// if error happens, the loop would just iterate.
 				// object creation
 				movieTemp = new Movie(++movieId, title, duration, cinemaNum);
-				MSTemp = new MovieSchedule(++movieScheduleId, dateTime, movieTemp, isPremiere, ++seatLayoutId);
+				MSTemp = new MovieSchedule(movieScheduleId, dateTime, movieTemp, isPremiere, ++seatLayoutId);
+				System.out.println(MSTemp);
 				movieSchedules.add(MSTemp);
 			} catch (Exception e) {}
 		}
+		System.out.println("Total items: " +movieScheduleId);
 	}
 
 //	helper methods
